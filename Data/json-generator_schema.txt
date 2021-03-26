@@ -1,0 +1,89 @@
+[ 
+
+  '{{repeat(1000)}}', 
+
+  { 
+
+    name: '{{firstName()} {surname()}}', 
+
+    age: '{{integer(18, 100)}}', 
+
+     
+
+    Address: 
+
+      { 
+
+        street: '{{street()}}', 
+
+        postcode: '{{integer(0, 9)}}{{integer(0, 9)}}{{integer(0, 9)}} {{integer(0, 9)}}{{integer(0, 9)}}', 
+
+        city: '{{city()}}', 
+
+        state: '{{state()}}' 
+
+      }, 
+
+    contacts: [ 
+
+   '{{repeat(0, 20)}}', 
+
+      '+1 {{phone()}}' 
+
+    ], 
+
+   
+
+     
+
+    cars: [ 
+
+      '{{repeat(0,5)}}', 
+
+      { 
+
+        license_plate: '{{guid()}}', 
+
+        tech_exams: [ '{{repeat(0,10)}}',{ 
+
+          date: '{{date(new Date(2014, 0, 1), new Date(), "dd/MM/YYYY")}}', 
+
+          defects: ['{{repeat(0,3)}}', '{{random("brakes", "tires", "pneu", "front glass", "oil", "engine")}}'] 
+
+        } 
+
+         
+
+        ] 
+
+  
+
+         
+
+      } 
+
+     
+
+    ], 
+
+     
+
+    pets: [ 
+
+    '{{repeat(0,10)}}', 
+
+      { 
+
+        name: '{{firstName()}}', 
+
+        species: '{{random("dog", "cat", "mouse", "elephant", "snake", "horse", "cow", "goat", "rabbit", "lion", "bird")}}', 
+
+        age: '{{integer(0, 15)}}' 
+
+      } 
+
+    ] 
+
+} 
+
+] 
