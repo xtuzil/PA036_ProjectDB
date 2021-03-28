@@ -4,7 +4,7 @@
 
   { 
 
-    name: '{{firstName()} {surname()}}', 
+    name: '{{firstName()}} {{surname()}}', 
 
     age: '{{integer(18, 100)}}', 
 
