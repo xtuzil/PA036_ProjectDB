@@ -24,9 +24,9 @@ python -m pip install pymongo
 
 
 ### Creating Postgres db
-initdb /usr/local/var/postgres
-pg_ctl -D /usr/local/var/postgres start
-createdb pa036
-psql pa036
-CREATE USER admin WITH SUPERUSER PASSWORD 'admin'; (to psql)
+initdb /usr/local/var/postgres  
+pg_ctl -D /usr/local/var/postgres start  
+createdb pa036  
+psql pa036  
+CREATE USER admin WITH SUPERUSER PASSWORD 'admin'; (to psql)  
 exit
