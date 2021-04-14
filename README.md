@@ -19,7 +19,7 @@ pip install psycopg2
 ### MongoDB
 brew install mongodb-community@4.4
 
-PyMongo
+#### PyMongo  
 python -m pip install pymongo
 
 
@@ -30,3 +30,7 @@ createdb pa036
 psql pa036  
 CREATE USER admin WITH SUPERUSER PASSWORD 'admin'; (to psql)  
 exit
+
+### Data preparation
+You must provide file personData.json in Data directory. If the file is zipped, unzip it with:  
+`gunzip -k personData.json.gz`
