@@ -1,9 +1,9 @@
 from psycopg2 import connect, Error
 from time import time
 import json
-from Data.GenerateSpeedViolationData import SpeedViolationDataGenerator
+from helper import Helper
 
-SPEED_VIOLATION_RECORDS_COUNT = 100000
+
 
 commands = (
         """
@@ -42,20 +42,11 @@ class PostgresDB:
         except (Exception, Error) as error:
             print("Error while connecting to PostgreSQL", error)
 
-    # load person json data to the table as jsonb --- as json, it is twice more quicker
+    # load person json data and speed_violation json data to the table as jsonb
     def load_data(self):
 
-        # Generate data
-        try:
-            f = open("Data/personData.json")
-            # Do something with the file
-        except IOError:
-            print("File not accessible")
-            return
-        finally:
-            f.close()
-
-        SpeedViolationDataGenerator.generate_speed_violation("Data/personData.json", SPEED_VIOLATION_RECORDS_COUNT)
+        if not Helper.generate():
+            return None, None
 
         # parsing person
         with open('Data/personData.json') as person_data:
@@ -82,8 +73,6 @@ class PostgresDB:
 
         # remove the last comma and end statement with a semicolon
         sql_string_speed_violation = sql_string_speed_violation[:-1] + ";"
-
-        print(speed_violation)
 
         try:
             start_person = time()
