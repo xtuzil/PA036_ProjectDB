@@ -1,0 +1,29 @@
+queries:
+
+  # mongo options:
+  #  collection:
+  #    person
+  #    speed_violation
+  #  method:
+  #    find
+  #    findOne
+  #    insertOne
+  #    insertMany
+  #    updateOne
+  #    updateMany
+  #    replaceOne
+  #    deleteMany
+  #    deleteOne
+  #    count
+  #  filter
+  #  value
+
+  - id: 1
+    description: "Count person with age more than 40"
+    postgres: SELECT COUNT(*) FROM person WHERE (data->>'age')::int > 40;
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+
+

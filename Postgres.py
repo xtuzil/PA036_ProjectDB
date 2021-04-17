@@ -1,8 +1,7 @@
 from psycopg2 import connect, Error
 from time import time
 import json
-from helper import Helper
-
+from Data.DataGenerator import DataGenerator
 
 
 commands = (
@@ -32,8 +31,8 @@ class PostgresDB:
             self.cursor = self.connection.cursor()
 
             # Print PostgreSQL details
-            print("PostgreSQL server information")
-            print(self.connection.get_dsn_parameters(), "\n")
+            # print("PostgreSQL server information")
+            # print(self.connection.get_dsn_parameters(), "\n")
 
             # Create tables
             for command in commands:
@@ -45,7 +44,7 @@ class PostgresDB:
     # load person json data and speed_violation json data to the table as jsonb
     def load_data(self):
 
-        if not Helper.generate():
+        if not DataGenerator.generate():
             return None, None
 
         # parsing person
@@ -56,7 +55,7 @@ class PostgresDB:
 
         for record in person_list:
             person = json.dumps(record)
-            sql_string_person += "('" + person + "'::jsonb),"
+            sql_string_person += f"('{person}'::jsonb),"
 
         # remove the last comma and end statement with a semicolon
         sql_string_person = sql_string_person[:-1] + ";"
@@ -69,7 +68,7 @@ class PostgresDB:
 
         for record in speed_violation_list:
             speed_violation = json.dumps(record)
-            sql_string_speed_violation += "('" + speed_violation + "'::jsonb),"
+            sql_string_speed_violation += f"('{speed_violation}'::jsonb),"
 
         # remove the last comma and end statement with a semicolon
         sql_string_speed_violation = sql_string_speed_violation[:-1] + ";"
@@ -85,21 +84,19 @@ class PostgresDB:
 
             self.connection.commit()
 
-            print('\nfinished INSERT INTO execution')
             return end_person - start_person, end_speed_violation - start_speed_violation
 
         except (Exception, Error) as error:
             print("\nexecute_sql() error:", error)
             self.connection.rollback()
 
-    def example(self):
-        # Executing a SQL query
-
-        self.cursor.execute("SELECT * FROM person;")
-
-        # Fetch result
+    def execute_query(self, yaml_queries):
+        start = time()
+        self.cursor.execute(yaml_queries["postgres"])
         record = self.cursor.fetchone()
-        print("Persons: ", record, "\n")
+        print("Postgres result: ", record)
+        end = time()
+        return end - start
 
     def __del__(self):
         if self.connection:
