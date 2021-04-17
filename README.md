@@ -14,7 +14,7 @@ Repository to PA036 project DB
 
 ### Postgres  
 
-MacOS - `brew install postgresql`
+MacOS - `brew install postgresql`  
 Linux - ???  
 Windows - ???
 
@@ -56,3 +56,6 @@ To disable loading the data every time:
 * in MongoDB `__init__()` comment dropping both collection 
 * in Postgres `__init__()` comment loop with executing commands 
 
+## TODO
+* environment pro $lookup
+* wiriting times to csv file
