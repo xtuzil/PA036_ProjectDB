@@ -35,6 +35,9 @@ WORKDIR "/root/pa036"
 
 CMD ["/root/pa036/entrypoint.sh"]
 
+## Build:
+# podman build . -t databases
+
 ## Run as:
 # podman run -it --privileged --mount type=bind,source=".",target="/root/pa036" databases
 
