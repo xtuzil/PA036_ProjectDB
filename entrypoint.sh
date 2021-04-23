@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 su - postgres -c "/usr/bin/pg_ctl -D /var/lib/pgsql/data -l logfile start"
 mongod --dbpath /var/lib/mongo/data 2>&1 > /dev/null &
 
