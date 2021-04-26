@@ -23,7 +23,6 @@ commands = (
         """,
         """
         CREATE TABLE person2 (
-            id serial NOT NULL PRIMARY KEY,
             data jsonb
         )
         """
@@ -81,7 +80,7 @@ class PostgresDB:
         sql_string_speed_violation = sql_string_speed_violation[:-1] + ";"
 
         ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-        sql_string_person2 = 'copy target from \'%s/Data/person.json\';' % ROOT_DIR
+        sql_string_person2 = 'copy person2 from \'%s/Data/person.json\';' % ROOT_DIR
 
         try:
             start_person = time()
