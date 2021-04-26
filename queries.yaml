@@ -25,5 +25,18 @@ queries:
       collection: person
       method: count
       filter: '{ "age" : { "$gt" : 40 } }'
-
+  - id: 2
+    description: "Count person with age more than 40 (second way)"
+    postgres: select count(*) from person where data @@ '$.age[0] > 40';
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+  - id: 3
+    description: "Count person with contact +1 (966) 429-3818 (top level atribut contacts)"
+    postgres: select count(*) from person where (data->'contacts')::jsonb ? '+1 (966) 429-3818';
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
 
