@@ -2,11 +2,12 @@ from psycopg2 import connect, Error
 from time import time
 import json
 from Data.DataGenerator import DataGenerator
-
+import os
+import jsonlines
 
 commands = (
         """
-        DROP TABLE IF EXISTS person, speed_violation;
+        DROP TABLE IF EXISTS person, speed_violation, person2;
         """,
         """
         CREATE TABLE person (
@@ -16,6 +17,12 @@ commands = (
         """,
         """ 
         CREATE TABLE speed_violation (
+            id serial NOT NULL PRIMARY KEY,
+            data jsonb
+        )
+        """,
+        """
+        CREATE TABLE person2 (
             id serial NOT NULL PRIMARY KEY,
             data jsonb
         )
@@ -73,6 +80,9 @@ class PostgresDB:
         # remove the last comma and end statement with a semicolon
         sql_string_speed_violation = sql_string_speed_violation[:-1] + ";"
 
+        ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+        sql_string_person2 = 'copy target from \'%s/Data/person.json\';' % ROOT_DIR
+
         try:
             start_person = time()
             self.cursor.execute(sql_string_person)
@@ -82,9 +92,17 @@ class PostgresDB:
             self.cursor.execute(sql_string_speed_violation)
             end_speed_violation = time()
 
+            start_person2 = time()
+            with open('%s/Data/personData.json' % ROOT_DIR, 'r') as f:
+                json_data_normal = json.load(f)
+            with jsonlines.open('%s/Data/person.json' % ROOT_DIR, 'w') as writer:
+                writer.write_all(json_data_normal)
+            self.cursor.execute(sql_string_person2)
+            end_person2 = time()
+
             self.connection.commit()
 
-            return end_person - start_person, end_speed_violation - start_speed_violation
+            return end_person - start_person, end_speed_violation - start_speed_violation, end_person2 - start_person2
 
         except (Exception, Error) as error:
             print("\nexecute_sql() error:", error)

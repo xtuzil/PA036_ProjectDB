@@ -71,6 +71,9 @@ $`python -m pip install pymongo`
 ### PyYAML 
 $`pip install PyYAML`
 
+### jsonlines
+$`pip install jsonlines`
+
 
 ## Creating Postgres db
 $`initdb /usr/local/var/postgres`  
