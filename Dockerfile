@@ -25,8 +25,6 @@ COPY "MongoDB.py" "/opt/pa036/"
 COPY "Postgres.py" "/opt/pa036/"
 COPY "queries.yaml" "/opt/pa036/"
 
-RUN chmod -R a+rwx "/opt/pa036/Data/personData.json"
-
 # Initialize PostgreSQL database with initial tables and users
 RUN \
 su - postgres -c "/usr/bin/initdb" && \
