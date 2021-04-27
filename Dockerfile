@@ -11,31 +11,37 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' \
 
 RUN dnf -y install postgresql postgresql-server python3-psycopg2 mongodb-org python3-pymongo python3-pip
 
-RUN pip3 install pyaml
+RUN pip3 install pyaml jsonlines
+
+COPY "Data/personData.json" "/opt/pa036/Data/personData.json"
+COPY "Data/speedViolationData.json" "/opt/pa036/Data/speedViolationData.json"
+COPY "Data/DataGenerator.py" "/opt/pa036/Data/DataGenerator.py"
+COPY "Data/SpeedViolationDataGenerator.py" "/opt/pa036/Data/SpeedViolationDataGenerator.py"
+
+COPY "entrypoint.sh" "/opt/pa036/"
+COPY "ExperimentApp.py" "/opt/pa036/"
+COPY "main.py" "/opt/pa036/"
+COPY "MongoDB.py" "/opt/pa036/"
+COPY "Postgres.py" "/opt/pa036/"
+COPY "queries.yaml" "/opt/pa036/"
+
+RUN chmod -R a+rwx "/opt/pa036/Data/personData.json"
 
 # Initialize PostgreSQL database with initial tables and users
 RUN \
 su - postgres -c "/usr/bin/initdb" && \
 su - postgres -c "/usr/bin/pg_ctl -D /var/lib/pgsql/data -l logfile start" && \
 su - postgres -c "createdb pa036" && \
-su - postgres -c "createuser admin" && \
+su - postgres -c "createuser --superuser admin" && \
 su - postgres -c "/usr/bin/pg_ctl stop" && \
 :
 
 # Intialize a place for MongoDB to store data
 RUN mkdir -p /var/lib/mongo/data
 
-COPY "Data/" "/root/pa036/Data/"
-COPY "entrypoint.sh" "/root/pa036/"
-COPY "ExperimentApp.py" "/root/pa036/"
-COPY "main.py" "/root/pa036/"
-COPY "MongoDB.py" "/root/pa036/"
-COPY "Postgres.py" "/root/pa036/"
-COPY "queries.yaml" "/root/pa036/"
+WORKDIR "/opt/pa036"
 
-WORKDIR "/root/pa036"
-
-CMD ["/root/pa036/entrypoint.sh"]
+CMD ["/opt/pa036/entrypoint.sh"]
 
 ################################################################################
 
@@ -51,7 +57,7 @@ CMD ["/root/pa036/entrypoint.sh"]
 ################################################################################
 # This is no longer needed
 
-# podman run -it --privileged --mount type=bind,source=".",target="/root/pa036" databases
+# podman run -it --privileged --mount type=bind,source=".",target="/opt/pa036" databases
 
 ## To initialize PostgreSQL database
 # su - postgres -c "/usr/bin/pg_ctl -D /var/lib/pgsql/data -l logfile start"
