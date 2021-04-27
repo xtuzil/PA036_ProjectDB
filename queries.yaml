@@ -39,4 +39,24 @@ queries:
       collection: person
       method: count
       filter: '{ "age" : { "$gt" : 40 } }'
-
+  - id: 4
+    description: "Select all license plates (nested select) - ZATIAL VYPIS VYSLEDKU LEN PRVY PRVOK"
+    postgres: select jsonb_array_elements(data -> 'cars') -> 'license_plate' from person;
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+  - id: 5
+    description: "Select all defects from all tech exams (more nested select) - ZATIAL VYPIS VYSLEDKU LEN PRVY PRVOK"
+    postgres: select jsonb_array_elements(jsonb_array_elements(jsonb_array_elements(data -> 'cars') -> 'tech_exams') -> 'defects') from person;
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+  - id: 6
+    description: "Count person with age 40 (with containment function)"
+    postgres: 'SELECT count(*) from person where (data @> ''{"age": 40}'')::boolean = true;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'

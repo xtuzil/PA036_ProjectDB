@@ -18,7 +18,7 @@ class ExperimentApp:
         time_person_p, time_speed_violation_p, time_person2_p = self.postgres.load_data()
         print("Postgres: Loading time for person table (INSERT with all data) is: ", time_person_p)
         print("Postgres: Loading time for speed_violation table (INSERT with all data) is: ", time_speed_violation_p)
-        print("Postgres: Loading time for person2 table (converting and using copy function) is: ", time_person2_p)
+        print("Postgres: Loading time for person2 table (convert and using copy function, no id) is: ", time_person2_p)
 
         time_person_m, time_speed_violation_m = self.mongo.load_data()
         print("MongoDB: Loading time for person table is: ", time_person_m)
