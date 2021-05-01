@@ -18,44 +18,50 @@ queries:
   #  filter
   #  value
 
+#1- jednoduchy select na toplevel atribute s agregaciou count
   - id: 1
-    description: "Count person with age more than 40"
+    description: "Count people with age more than 40"
     postgres: SELECT COUNT(*) FROM person WHERE (data->>'age')::int > 40;
     mongo:
       collection: person
       method: count
       filter: '{ "age" : { "$gt" : 40 } }'
+#2- jednoduchy select na toplevel atribute
   - id: 2
-    description: "Count person with age more than 40 (second way)"
-    postgres: select count(*) from person where data @@ '$.age[0] > 40';
+    description: "Select people with age more than 40"
+    postgres: SELECT * FROM person WHERE (data->>'age')::int > 40;
     mongo:
       collection: person
       method: count
       filter: '{ "age" : { "$gt" : 40 } }'
+#3- jednoduchy select na toplevel array atribute
   - id: 3
-    description: "Count person with contact +1 (966) 429-3818 (top level atribut contacts)"
-    postgres: select count(*) from person where (data->'contacts')::jsonb ? '+1 (966) 429-3818';
+    description: "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)"
+    postgres: select * from person where (data->'contacts')::jsonb ? '+1 (966) 429-3818';
     mongo:
       collection: person
       method: count
       filter: '{ "age" : { "$gt" : 40 } }'
+#4- Zanoreny select v poli cars
   - id: 4
-    description: "Select all license plates (nested select) - ZATIAL VYPIS VYSLEDKU LEN PRVY PRVOK"
+    description: "Select all license plates"
     postgres: select jsonb_array_elements(data -> 'cars') -> 'license_plate' from person;
     mongo:
       collection: person
       method: count
       filter: '{ "age" : { "$gt" : 40 } }'
+#5- Viac zanoreny select v poli cars cez pole tech_exams k polu defects
   - id: 5
-    description: "Select all defects from all tech exams (more nested select) - ZATIAL VYPIS VYSLEDKU LEN PRVY PRVOK"
+    description: "Select all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)"
     postgres: select jsonb_array_elements(jsonb_array_elements(jsonb_array_elements(data -> 'cars') -> 'tech_exams') -> 'defects') from person;
     mongo:
       collection: person
       method: count
       filter: '{ "age" : { "$gt" : 40 } }'
+#6- Jednoduchy select s pouzitim containment funkcie
   - id: 6
-    description: "Count person with age 40 (with containment function)"
-    postgres: 'SELECT count(*) from person where (data @> ''{"age": 40}'')::boolean = true;'
+    description: "Select people with age 40 (with containment function)"
+    postgres: 'SELECT * from person where (data @> ''{"age": 40}'')::boolean = true;'
     mongo:
       collection: person
       method: count
