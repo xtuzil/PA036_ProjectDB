@@ -43,12 +43,14 @@ Fedora 33:
 $`sudo dnf install nano`                               
 $`sudo nano /etc/yum.repos.d/mongodb.repo`              
 add and save:    
+```
 [mongodb-org-4.4]      
 name=MongoDB Repository   
 baseurl=https://repo.mongodb.org/yum/amazon/2013.03/mongodb-org/4.4/x86_64/     
 gpgcheck=1      
 enabled=1      
-gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc    
+gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
+```
 $`sudo dnf install mongodb-org`       
 $`sudo systemctl daemon-reload`      
 $`sudo systemctl start mongod`      

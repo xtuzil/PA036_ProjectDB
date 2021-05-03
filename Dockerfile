@@ -9,7 +9,7 @@ enabled=1\n\
 gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' \
 > /etc/yum.repos.d/mongodb.repo
 
-RUN dnf -y install postgresql postgresql-server python3-psycopg2 mongodb-org python3-pymongo python3-pip
+RUN dnf -y install postgresql postgresql-server python3-psycopg2 mongodb-org python3-pymongo python3-pip python3-matplotlib nano
 
 RUN pip3 install pyaml jsonlines
 
@@ -36,8 +36,6 @@ COPY "main.py" "/opt/pa036/"
 COPY "MongoDB.py" "/opt/pa036/"
 COPY "Postgres.py" "/opt/pa036/"
 COPY "queries.yaml" "/opt/pa036/"
-
-RUN ddnf -y install nano
 
 WORKDIR "/opt/pa036"
 
