@@ -3,6 +3,10 @@ from time import time
 import json
 from Data.DataGenerator import DataGenerator
 
+get_result = {
+    "count": lambda x: int(x),
+    "find": lambda x: list(x),
+}
 
 class MongoDB:
     def __init__(self):
@@ -55,7 +59,7 @@ class MongoDB:
 
         # takes collection, method and possibly filters or value and execute it
         start = time()
-        result = getattr(self.get_col(collection), method)(*args)
+        result = get_result[method](getattr(self.get_col(collection), method)(*args))
         end = time()
         print("Mongo result:", result)
 

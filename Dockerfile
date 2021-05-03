@@ -13,6 +13,18 @@ RUN dnf -y install postgresql postgresql-server python3-psycopg2 mongodb-org pyt
 
 RUN pip3 install pyaml jsonlines
 
+# Initialize PostgreSQL database with initial tables and users
+RUN \
+su - postgres -c "/usr/bin/initdb" && \
+su - postgres -c "/usr/bin/pg_ctl -D /var/lib/pgsql/data -l logfile start" && \
+su - postgres -c "createdb pa036" && \
+su - postgres -c "createuser --superuser admin" && \
+su - postgres -c "/usr/bin/pg_ctl stop" && \
+:
+
+# Intialize a place for MongoDB to store data
+RUN mkdir -p /var/lib/mongo/data
+
 COPY "Data/personData.json" "/opt/pa036/Data/personData.json"
 COPY "Data/speedViolationData.json" "/opt/pa036/Data/speedViolationData.json"
 COPY "Data/DataGenerator.py" "/opt/pa036/Data/DataGenerator.py"
@@ -25,17 +37,7 @@ COPY "MongoDB.py" "/opt/pa036/"
 COPY "Postgres.py" "/opt/pa036/"
 COPY "queries.yaml" "/opt/pa036/"
 
-# Initialize PostgreSQL database with initial tables and users
-RUN \
-su - postgres -c "/usr/bin/initdb" && \
-su - postgres -c "/usr/bin/pg_ctl -D /var/lib/pgsql/data -l logfile start" && \
-su - postgres -c "createdb pa036" && \
-su - postgres -c "createuser --superuser admin" && \
-su - postgres -c "/usr/bin/pg_ctl stop" && \
-:
-
-# Intialize a place for MongoDB to store data
-RUN mkdir -p /var/lib/mongo/data
+RUN ddnf -y install nano
 
 WORKDIR "/opt/pa036"
 

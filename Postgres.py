@@ -110,7 +110,7 @@ class PostgresDB:
     def execute_query(self, yaml_queries):
         start = time()
         self.cursor.execute(yaml_queries["postgres"])
-        record = self.cursor.fetchone()
+        record = self.cursor.fetchall()
         print("Postgres result: ", record)
         end = time()
         return end - start

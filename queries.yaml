@@ -32,7 +32,7 @@ queries:
     postgres: SELECT * FROM person WHERE (data->>'age')::int > 40;
     mongo:
       collection: person
-      method: count
+      method: find
       filter: '{ "age" : { "$gt" : 40 } }'
 #3- jednoduchy select na toplevel array atribute
   - id: 3
@@ -40,7 +40,7 @@ queries:
     postgres: select * from person where (data->'contacts')::jsonb ? '+1 (966) 429-3818';
     mongo:
       collection: person
-      method: count
+      method: find
       filter: '{ "age" : { "$gt" : 40 } }'
 #4- Zanoreny select v poli cars
   - id: 4
