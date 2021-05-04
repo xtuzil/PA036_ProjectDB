@@ -48,7 +48,7 @@ queries:
     postgres: select * from person where (data->>'contacts') like '%+1 (966) 429-3818%';
     mongo:
       collection: person
-      method: find
+      method: count
       filter: '{ "age" : { "$gt" : 40 } }'
 #5- jednoduchy select na toplevel array atribute s pouzitim existence funkcie
   - id: 5
@@ -56,11 +56,11 @@ queries:
     postgres: select * from person where (data->'contacts')::jsonb ? '+1 (966) 429-3818';
     mongo:
       collection: person
-      method: find
+      method: count
       filter: '{ "age" : { "$gt" : 40 } }'
 #6- Zanoreny select v poli cars
   - id: 6
-    description: "Select all license plates"
+    description: "Select all license plates of all cars"
     postgres: select jsonb_array_elements(data -> 'cars') -> 'license_plate' from person;
     mongo:
       collection: person
@@ -102,6 +102,78 @@ queries:
   - id: 11
     description: "Select minimum age from all people"
     postgres: 'SELECT MIN((data->''age'')::int) FROM person;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#12- jednoduchy select na toplevel atribute s agregaciou sum
+  - id: 12
+    description: "Select sum of age of all people (should be 2943583)"
+    postgres: 'SELECT SUM((data->''age'')::int) FROM person;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#13- podmieneny select s agregaciou array_agg
+  - id: 13
+    description: "Put names of all people with age 18 concatenated into an array with ARRAY_AGG"
+    postgres: 'SELECT ARRAY_AGG(data->''name'') from person where (data->''age'')::int = 18;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#14- cisty count bez podmienok
+  - id: 14
+    description: "Count all from person table"
+    postgres: 'SELECT COUNT(*) FROM person;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#15- count na query #3
+  - id: 15
+    description: "Select count of people with age 40 (with containment function)"
+    postgres: 'SELECT COUNT(*) from person where (data @> ''{"age": 40}'')::boolean = true;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#16- count na query #4
+  - id: 16
+    description: "Select count of people with contact '+1 (966) 429-3818' (top level atribut contacts)"
+    postgres: 'select count(*) from person where (data->>''contacts'') like ''%+1 (966) 429-3818%'';'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#17- count na query #5
+  - id: 17
+    description: "Select count of people with contact '+1 (966) 429-3818' (top level atribut contacts)"
+    postgres: 'select count(*) from person where (data->''contacts'')::jsonb ? ''+1 (966) 429-3818'';'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#18- count na query #6
+  - id: 18
+    description: "Select count of all license plates of all cars"
+    postgres: 'select count(*) from (select jsonb_array_elements(data -> ''cars'') -> ''license_plate'' from person) as t;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#19- count na query #7
+  - id: 19
+    description: "Select count of all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)"
+    postgres: 'select count(*) from (select jsonb_array_elements(jsonb_array_elements(jsonb_array_elements(data -> ''cars'') -> ''tech_exams'') -> ''defects'') from person) as t;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#20- count na query #8
+  - id: 20
+    description: "Select count of name of person, age of person, license plate of person with record, date of speed violation, speed limit and actual speed of every speed violation record with actual speed higher than 100 (should be 80877 rows)"
+    postgres: 'select count(*) from (select t.name, t.age, t.license_plate, (speed_violation.data->>''date'') as date, (speed_violation.data->>''speed_limit'') as speed_limit, (speed_violation.data->>''actual_speed'') as actual_speed from (select person.data ->> ''name'' as name, person.data ->> ''age'' as age, jsonb_array_elements(person.data -> ''cars'') -> ''license_plate'' as license_plate from person) as t inner join speed_violation on license_plate = speed_violation.data -> ''license_plate'' where (speed_violation.data -> ''actual_speed'')::int > 100) as k;'
     mongo:
       collection: person
       method: count
