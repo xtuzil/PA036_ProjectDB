@@ -18,7 +18,7 @@ queries:
   #  filter
   #  value
 
-#1- jednoduchy select na toplevel atribute s agregaciou count
+#1- select s jednoduchou podmienkou na toplevel atribute s agregaciou count
   - id: 1
     description: "Count people with age more than 40"
     postgres: SELECT COUNT(*) FROM person WHERE (data->>'age')::int > 40;
@@ -26,7 +26,7 @@ queries:
       collection: person
       method: count
       filter: '{ "age" : { "$gt" : 40 } }'
-#2- jednoduchy select na toplevel atribute
+#2- select s jednoduchou podmienkou na toplevel atribute
   - id: 2
     description: "Select people with age more than 40"
     postgres: SELECT * FROM person WHERE (data->>'age')::int > 40;
@@ -34,7 +34,7 @@ queries:
       collection: person
       method: find
       filter: '{ "age" : { "$gt" : 40 } }'
-#3- Jednoduchy select s pouzitim containment funkcie
+#3- select s jednoduchou podmienkou na toplevel atribute s pouzitim containment funkcie
   - id: 3
     description: "Select people with age 40 (with containment function)"
     postgres: 'SELECT * from person where (data @> ''{"age": 40}'')::boolean = true;'
@@ -42,7 +42,7 @@ queries:
       collection: person
       method: find
       filter: '{ "age" : { "$gt" : 40 } }'
-#4- jednoduchy select na toplevel array atribute
+#4- select s jednoduchou podmienkou na toplevel array atribute
   - id: 4
     description: "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)"
     postgres: select * from person where (data->>'contacts') like '%+1 (966) 429-3818%';
@@ -50,7 +50,7 @@ queries:
       collection: person
       method: count
       filter: '{ "age" : { "$gt" : 40 } }'
-#5- jednoduchy select na toplevel array atribute s pouzitim existence funkcie
+#5- select s jednoduchou podmienkou na toplevel array atribute s pouzitim existence funkcie
   - id: 5
     description: "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)"
     postgres: select * from person where (data->'contacts')::jsonb ? '+1 (966) 429-3818';
@@ -178,3 +178,76 @@ queries:
       collection: person
       method: count
       filter: '{ "age" : { "$gt" : 40 } }'
+#21- cisty select bez akychkolvek podmienok
+  - id: 21
+    description: "Select all from speed_violation"
+    postgres: 'select * from speed_violation;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#22- count na query #21
+  - id: 22
+    description: "Select count of all from speed_violation"
+    postgres: 'select count(*) from speed_violation;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#23- jednodychy select s agregaciou array_agg
+  - id: 23
+    description: "Put names of all people concatenated into an array with ARRAY_AGG"
+    postgres: 'SELECT ARRAY_AGG(data->''name'') from person;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#24- jednoduchy select na toplevel atribute
+  - id: 24
+    description: "Count all from person table"
+    postgres: 'SELECT (data->>''age'') FROM person;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#25- count na query #24
+  - id: 25
+    description: "Count all from person table"
+    postgres: 'SELECT COUNT(data->>''age'') FROM person;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#26- jednoduchy select  na toplevel array atribute (vysledky v poliach podla zaznamov)
+  - id: 26
+    description: "Select contacts from all people"
+    postgres: select (data->>'contacts') from person;
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#27- count na query #26
+  - id: 27
+    description: "Select contacts from all people"
+    postgres: select count(data->>'contacts') from person;
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#28- jednoduchy select  na toplevel array atribute (vysledky po jednom v tabulke)
+  - id: 28
+    description: "Select contacts from all people"
+    postgres: select jsonb_array_elements(data->'contacts') from person;
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+#29- jediny sposob ako vyhladavat v zanorenom poli
+  - id: 29
+    description: "Select all records in person with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
+    postgres: 'select * from person where ((data -> ''cars'') @> ''[{"license_plate": "1d642205-dc4e-4051-b653-bc0f6b768072"}]'')::boolean = true;'
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+# select * from person where (((data -> 'cars') -> 'tech_exams') @> '{"defects": []}')::boolean = true; -> take nieco nejde spravit
