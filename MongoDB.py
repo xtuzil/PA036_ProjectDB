@@ -6,6 +6,8 @@ from Data.DataGenerator import DataGenerator
 get_result = {
     "count": lambda x: int(x),
     "find": lambda x: list(x),
+    "aggregate": lambda x: list(x),
+    "distinct": lambda x: list(x)
 }
 
 class MongoDB:
@@ -59,19 +61,17 @@ class MongoDB:
             args.append(json.loads(yaml_query["mongo"]["filter"]))
         if "value" in yaml_query["mongo"]:
             args.append(json.loads(yaml_query["mongo"]["value"]))
+        if "distinct" in yaml_query["mongo"]:
+            args.append(yaml_query["mongo"]["distinct"])
+        if "projection" in yaml_query["mongo"]:
+            args.append(json.loads(yaml_query["mongo"]["projection"]))
 
         # takes collection, method and possibly filters or value and execute it
         start = time()
         result = get_result[method](getattr(self.get_col(collection), method)(*args))
         end = time()
 
-        # debug
-        if yaml_query["id"] == 7:
-            print("loop:")
-            for doc in result:
-                print(doc)
-
-        print("Mongo result:", result)
+        #print("Mongo result:", result)
 
         return end - start
 
