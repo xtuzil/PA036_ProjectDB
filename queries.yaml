@@ -17,6 +17,7 @@ queries:
   #    count
   #  filter
   #  value
+  #  projection
 
 #1- select s jednoduchou podmienkou na toplevel atribute s agregaciou count
   - id: 1
@@ -134,21 +135,39 @@ queries:
   - id: 20
     description: "Select count of name of person, age of person, license plate of person with record, date of speed violation, speed limit and actual speed of every speed violation record with actual speed higher than 100 (should be 80877 rows)"
     postgres: 'select count(*) from (select t.name, t.age, t.license_plate, (speed_violation.data->>''date'') as date, (speed_violation.data->>''speed_limit'') as speed_limit, (speed_violation.data->>''actual_speed'') as actual_speed from (select person.data ->> ''name'' as name, person.data ->> ''age'' as age, jsonb_array_elements(person.data -> ''cars'') -> ''license_plate'' as license_plate from person) as t inner join speed_violation on license_plate = speed_violation.data -> ''license_plate'' where (speed_violation.data -> ''actual_speed'')::int > 100) as k;'
-    # mongo: TODO
+    mongo:
+      descriptionMongo: "Select names of all people who drove with speed 200"
+      collection: speed_violation
+      method: aggregate
+      filter: [{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "person", "localField": "license_plate", "foreignField": "cars.license_plate", "as": "join"}}, {"$project":{"name":"$join.name"}} ]
+
+      #filter: [{"$lookup":{"from": "speed_violation", "localField": "cars.license_plate", "foreignField": "license_plate", "as": "join"}}, {"$project":{"name": 1, "join.actual_speed":1}} ]
+      #filte3r: [{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "speed_violation", "let": { "license_plate": "$license_plate"},"pipeline": [{ "$match":{ "$expr":{ "$eq": [ "$license_plate",  "$cars.license_plate" ]}}}], "as": "join"}}, {"$project":{"actual_speed": 1, "join":1}} ]
+
+
+{ "$match": { "actual_speed": { "$gt": 195}}},
+
 
 #21- cisty select bez akychkolvek podmienok
   - id: 21
     description: "Select all from speed_violation"
     postgres: 'select * from speed_violation;'
-    # mongo: TODO
+    mongo:
+      collection: speed_violation
+      method: find
+      filter: '{ }'
 
 #22- count na query #21
   - id: 22
     description: "Select count of all from speed_violation"
     postgres: 'select count(*) from speed_violation;'
-    # mongo: TODO
+    mongo:
+      collection: speed_violation
+      method: count
+      filter: '{ }'
 
 #23- jednodychy select s agregaciou array_agg
+  # TODO: nic mi to nevypsalo v psql
   - id: 23
     description: "Put names of all people concatenated into an array with ARRAY_AGG"
     postgres: 'SELECT ARRAY_AGG(data->''name'') from person;'
@@ -156,39 +175,63 @@ queries:
 
 #24- jednoduchy select na toplevel atribute
   - id: 24
-    description: "Count all from person table"
+    description: "Select all from person table"
     postgres: 'SELECT (data->>''age'') FROM person;'
-    # mongo: TODO
+    mongo:
+      collection: person
+      method: find
+      projection: '{"age":1, "_id":0}'
+      filter: '{ }'
 
 #25- count na query #24
+  # TODO: k cemu ten age?
   - id: 25
     description: "Count all from person table"
     postgres: 'SELECT COUNT(data->>''age'') FROM person;'
     # mongo: TODO
 
 #26- jednoduchy select  na toplevel array atribute (vysledky v poliach podla zaznamov)
+  # TODO postgres pole vs. mongo contacts: [...]  je to ok?
   - id: 26
     description: "Select contacts from all people"
     postgres: select (data->>'contacts') from person;
-    # mongo: TODO
+    mongo:
+      collection: person
+      method: find
+      projection: '{"contacts":1, "_id":0}'
+      filter: '{ }'
 
 #27- count na query #26
+  # TODO: Tady mi nesedi vysledek - postgres jen 50000? Podle me to pocitat jen pocet lidi
   - id: 27
-    description: "Select contacts from all people"
+    description: "Count contacts from all people"
     postgres: select count(data->>'contacts') from person;
-    # mongo: TODO
+    mongo:
+      collection: person
+      method: aggregate
+      filter: '[ {"$project": {"_id":0,"arraySize":{"$size":"$contacts"}}},{"$group": {"_id":null,"totalArraysSize":{"$sum":"$arraySize"}}}]'
 
 #28- jednoduchy select  na toplevel array atribute (vysledky po jednom v tabulke)
   - id: 28
     description: "Select contacts from all people"
     postgres: select jsonb_array_elements(data->'contacts') from person;
-    # mongo: TODO
+    mongo:
+      collection: person
+      method: distinct
+      distinct: 'contacts'
 
 #29- jediny sposob ako vyhladavat v zanorenom poli
   - id: 29
     description: "Select all records in person with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
     postgres: 'select * from person where ((data -> ''cars'') @> ''[{"license_plate": "1d642205-dc4e-4051-b653-bc0f6b768072"}]'')::boolean = true;'
-    # mongo: TODO
+    # TODO
+    descriptionMongo: "Select name in person who owns car with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
+    mongo:
+      collection: person
+      method: find
+      projection: '{"name":1, "_id":0}'
+      filter: '{"cars.license_plate": "1d642205-dc4e-4051-b653-bc0f6b768072"}'
+
 # select * from person where (((data -> 'cars') -> 'tech_exams') @> '{"defects": []}')::boolean = true; -> take nieco nejde spravit
 
 
@@ -202,3 +245,5 @@ queries:
       collection: person
       method: aggregate
       filter: '[{"$group": {"_id":null, "cars_avg": {"$avg": {"$size":"$cars"} } } }]'
+
+
