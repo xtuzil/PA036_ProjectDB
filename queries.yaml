@@ -1,4 +1,4 @@
-queries:
+ queries:
 
   # mongo options:
   #  collection:
@@ -24,37 +24,61 @@ queries:
     description: "Select people with age more than 40"
     fetch: true
     postgres: SELECT * FROM person WHERE (data->>'age')::int > 40;
+    mongo:
+      collection: person
+      method: find
+      filter: '{ "age" : { "$gt" : 40 } }'
 
 #3- select s jednoduchou podmienkou na toplevel atribute s pouzitim containment funkcie
   - id: 3
     description: "Select people with age 40 (with containment function)"
     fetch: true
     postgres: 'SELECT * from person where (data @> ''{"age": 40}'')::boolean = true;'
+    mongo:
+      collection: person
+      method: find
+      filter: '{ "age" : 40 }'
 
 #4- select s jednoduchou podmienkou na toplevel array atribute
   - id: 4
     description: "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)"
     fetch: true
     postgres: select * from person where (data->>'contacts') like '%+1 (966) 429-3818%';
+    mongo:
+      collection: person
+      method: find
+      filter: '{ "contacts" : "+1 (966) 429-3818" }'
 
 #5- select s jednoduchou podmienkou na toplevel array atribute s pouzitim existence funkcie
   - id: 5
     description: "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)"
     fetch: true
     postgres: select * from person where (data->'contacts')::jsonb ? '+1 (966) 429-3818';
+    mongo:
+      collection: person
+      method: find
+      filter: '{ "contacts" : "+1 (966) 429-3818" }'
 
 #6- Zanoreny select v poli cars
   - id: 6
     description: "Select all license plates of all cars"
     fetch: true
     postgres: select jsonb_array_elements(data -> 'cars') -> 'license_plate' from person;
+    mongo:
+      collection: person
+      method: distinct
+      distinct: 'cars.license_plate'
 
-#7- Viac zanoreny select v poli cars cez pole tech_exams k polu defects
+ #7- Viac zanoreny select v poli cars cez pole tech_exams k polu defects
   - id: 7
     description: "Select all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)"
     fetch: true
     postgres: select jsonb_array_elements(jsonb_array_elements(jsonb_array_elements(data -> 'cars') -> 'tech_exams') -> 'defects') from person;
-    # mongo: TODO
+    mongo:
+      collection: person
+      method: aggregate
+      filter: '[{"$unwind":"$cars"},{"$unwind":"$cars.tech_exams"},{"$unwind":"$cars.tech_exams.defects"},{"$project":{"d":"$cars.tech_exams.defects","_id":0}}]'
+      #filter: '[{"$addFields":{"defects":{"$reduce":{"input":"$cars.tech_exams","initialValue":[],"in":{"$concatArrays":["$$value",{"$map":{"input":"$$this.defects","as":"dfcts","in":{"dfct":"$$dfcts"}}}]}}}}},{"$unwind":"$defects"},{"$project":{"d":"$defects.dfct", "_id":0}},{"$unwind" :"$d"}]'
 
 #8- Zlozity select z person s joinom na speed_violation
   - id: 8
@@ -164,7 +188,7 @@ queries:
     mongo:
       collection: speed_violation
       method: find
-      filter: '{ }'
+      filter: '{ }' 
 
 #22- count na query #21
   - id: 22
