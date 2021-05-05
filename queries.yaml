@@ -41,19 +41,16 @@ queries:
   - id: 4
     description: "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)"
     postgres: select * from person where (data->>'contacts') like '%+1 (966) 429-3818%';
-    # mongo: TODO
 
 #5- select s jednoduchou podmienkou na toplevel array atribute s pouzitim existence funkcie
   - id: 5
     description: "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)"
     postgres: select * from person where (data->'contacts')::jsonb ? '+1 (966) 429-3818';
-    # mongo: TODO
 
 #6- Zanoreny select v poli cars
   - id: 6
     description: "Select all license plates of all cars"
     postgres: select jsonb_array_elements(data -> 'cars') -> 'license_plate' from person;
-    # mongo: TODO
 
 #7- Viac zanoreny select v poli cars cez pole tech_exams k polu defects
   - id: 7
@@ -205,4 +202,3 @@ queries:
       collection: person
       method: aggregate
       filter: '[{"$group": {"_id":null, "cars_avg": {"$avg": {"$size":"$cars"} } } }]'
-
