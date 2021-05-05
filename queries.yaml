@@ -4,17 +4,7 @@ queries:
   #  collection:
   #    person
   #    speed_violation
-  #  method:
-  #    find
-  #    findOne
-  #    insertOne
-  #    insertMany
-  #    updateOne
-  #    updateMany
-  #    replaceOne
-  #    deleteMany
-  #    deleteOne
-  #    count
+  #  method
   #  filter
   #  value
   #  projection
@@ -22,6 +12,7 @@ queries:
 #1- select s jednoduchou podmienkou na toplevel atribute s agregaciou count
   - id: 1
     description: "Count people with age more than 40"
+    fetch: true
     postgres: SELECT COUNT(*) FROM person WHERE (data->>'age')::int > 40;
     mongo:
       collection: person
@@ -31,109 +22,128 @@ queries:
 #2- select s jednoduchou podmienkou na toplevel atribute
   - id: 2
     description: "Select people with age more than 40"
+    fetch: true
     postgres: SELECT * FROM person WHERE (data->>'age')::int > 40;
 
 #3- select s jednoduchou podmienkou na toplevel atribute s pouzitim containment funkcie
   - id: 3
     description: "Select people with age 40 (with containment function)"
+    fetch: true
     postgres: 'SELECT * from person where (data @> ''{"age": 40}'')::boolean = true;'
 
 #4- select s jednoduchou podmienkou na toplevel array atribute
   - id: 4
     description: "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)"
+    fetch: true
     postgres: select * from person where (data->>'contacts') like '%+1 (966) 429-3818%';
 
 #5- select s jednoduchou podmienkou na toplevel array atribute s pouzitim existence funkcie
   - id: 5
     description: "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)"
+    fetch: true
     postgres: select * from person where (data->'contacts')::jsonb ? '+1 (966) 429-3818';
 
 #6- Zanoreny select v poli cars
   - id: 6
     description: "Select all license plates of all cars"
+    fetch: true
     postgres: select jsonb_array_elements(data -> 'cars') -> 'license_plate' from person;
 
 #7- Viac zanoreny select v poli cars cez pole tech_exams k polu defects
   - id: 7
     description: "Select all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)"
+    fetch: true
     postgres: select jsonb_array_elements(jsonb_array_elements(jsonb_array_elements(data -> 'cars') -> 'tech_exams') -> 'defects') from person;
     # mongo: TODO
 
 #8- Zlozity select z person s joinom na speed_violation
   - id: 8
     description: "Select name of person, age of person, license plate of person with record, date of speed violation, speed limit and actual speed of every speed violation record with actual speed higher than 100 (should be 80877 rows)"
+    fetch: true
     postgres: 'select t.name, t.age, t.license_plate, (speed_violation.data->>''date'') as date, (speed_violation.data->>''speed_limit'') as speed_limit, (speed_violation.data->>''actual_speed'') as actual_speed from (select person.data ->> ''name'' as name, person.data ->> ''age'' as age, jsonb_array_elements(person.data -> ''cars'') -> ''license_plate'' as license_plate from person) as t inner join speed_violation on license_plate = speed_violation.data -> ''license_plate'' where (speed_violation.data -> ''actual_speed'')::int > 100;'
     # mongo: TODO
 
 #9- jednoduchy select na toplevel atribute s agregaciou average
   - id: 9
     description: "Select average age of all people"
+    fetch: true
     postgres: 'SELECT AVG((data->''age'')::int) FROM person;'
     # mongo: TODO
 
 #10- jednoduchy select na toplevel atribute s agregaciou maximum
   - id: 10
     description: "Select maximum age from all people"
+    fetch: true
     postgres: 'SELECT MAX((data->''age'')::int) FROM person;'
     # mongo: TODO
 
 #11- jednoduchy select na toplevel atribute s agregaciou minimum
   - id: 11
     description: "Select minimum age from all people"
+    fetch: true
     postgres: 'SELECT MIN((data->''age'')::int) FROM person;'
     # mongo: TODO
 
 #12- jednoduchy select na toplevel atribute s agregaciou sum
   - id: 12
     description: "Select sum of age of all people (should be 2943583)"
+    fetch: true
     postgres: 'SELECT SUM((data->''age'')::int) FROM person;'
     # mongo: TODO
 
 #13- podmieneny select s agregaciou array_agg
   - id: 13
     description: "Put names of all people with age 18 concatenated into an array with ARRAY_AGG"
+    fetch: true
     postgres: 'SELECT ARRAY_AGG(data->''name'') from person where (data->''age'')::int = 18;'
     # mongo: TODO
 
 #14- cisty count bez podmienok
   - id: 14
     description: "Count all from person table"
+    fetch: true
     postgres: 'SELECT COUNT(*) FROM person;'
     # mongo: TODO
 
 #15- count na query #3
   - id: 15
     description: "Select count of people with age 40 (with containment function)"
+    fetch: true
     postgres: 'SELECT COUNT(*) from person where (data @> ''{"age": 40}'')::boolean = true;'
     # mongo: TODO
 
 #16- count na query #4
   - id: 16
     description: "Select count of people with contact '+1 (966) 429-3818' (top level atribut contacts)"
+    fetch: true
     postgres: 'select count(*) from person where (data->>''contacts'') like ''%+1 (966) 429-3818%'';'
     # mongo: TODO
 
 #17- count na query #5
   - id: 17
     description: "Select count of people with contact '+1 (966) 429-3818' (top level atribut contacts)"
+    fetch: true
     postgres: 'select count(*) from person where (data->''contacts'')::jsonb ? ''+1 (966) 429-3818'';'
     # mongo: TODO
 
 #18- count na query #6
   - id: 18
     description: "Select count of all license plates of all cars"
+    fetch: true
     postgres: 'select count(*) from (select jsonb_array_elements(data -> ''cars'') -> ''license_plate'' from person) as t;'
     # mongo: TODO
 
 #19- count na query #7
   - id: 19
     description: "Select count of all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)"
+    fetch: true
     postgres: 'select count(*) from (select jsonb_array_elements(jsonb_array_elements(jsonb_array_elements(data -> ''cars'') -> ''tech_exams'') -> ''defects'') from person) as t;'
     # mongo: TODO
 
 #20- count na query #8
   - id: 20
     description: "Select count of name of person, age of person, license plate of person with record, date of speed violation, speed limit and actual speed of every speed violation record with actual speed higher than 100 (should be 80877 rows)"
+    fetch: true
     postgres: 'select count(*) from (select t.name, t.age, t.license_plate, (speed_violation.data->>''date'') as date, (speed_violation.data->>''speed_limit'') as speed_limit, (speed_violation.data->>''actual_speed'') as actual_speed from (select person.data ->> ''name'' as name, person.data ->> ''age'' as age, jsonb_array_elements(person.data -> ''cars'') -> ''license_plate'' as license_plate from person) as t inner join speed_violation on license_plate = speed_violation.data -> ''license_plate'' where (speed_violation.data -> ''actual_speed'')::int > 100) as k;'
     #mongo:
       #descriptionMongo: "Select names of all people who drove with speed 200"
@@ -149,6 +159,7 @@ queries:
 #21- cisty select bez akychkolvek podmienok
   - id: 21
     description: "Select all from speed_violation"
+    fetch: true
     postgres: 'select * from speed_violation;'
     mongo:
       collection: speed_violation
@@ -158,6 +169,7 @@ queries:
 #22- count na query #21
   - id: 22
     description: "Select count of all from speed_violation"
+    fetch: true
     postgres: 'select count(*) from speed_violation;'
     mongo:
       collection: speed_violation
@@ -168,12 +180,14 @@ queries:
   # TODO: nic mi to nevypsalo v psql
   - id: 23
     description: "Put names of all people concatenated into an array with ARRAY_AGG"
+    fetch: true
     postgres: 'SELECT ARRAY_AGG(data->''name'') from person;'
     # mongo: TODO
 
 #24- jednoduchy select na toplevel atribute
   - id: 24
     description: "Select all from person table"
+    fetch: true
     postgres: 'SELECT (data->>''age'') FROM person;'
     mongo:
       collection: person
@@ -185,6 +199,7 @@ queries:
   # TODO: k cemu ten age?
   - id: 25
     description: "Count all from person table"
+    fetch: true
     postgres: 'SELECT COUNT(data->>''age'') FROM person;'
     # mongo: TODO
 
@@ -192,6 +207,7 @@ queries:
   # TODO postgres pole vs. mongo contacts: [...]  je to ok?
   - id: 26
     description: "Select contacts from all people"
+    fetch: true
     postgres: select (data->>'contacts') from person;
     mongo:
       collection: person
@@ -203,6 +219,7 @@ queries:
   # TODO: Tady mi nesedi vysledek - postgres jen 50000? Podle me to pocitat jen pocet lidi
   - id: 27
     description: "Count contacts from all people"
+    fetch: true
     postgres: select count(data->>'contacts') from person;
     mongo:
       collection: person
@@ -212,6 +229,7 @@ queries:
 #28- jednoduchy select  na toplevel array atribute (vysledky po jednom v tabulke)
   - id: 28
     description: "Select contacts from all people"
+    fetch: true
     postgres: select jsonb_array_elements(data->'contacts') from person;
     mongo:
       collection: person
@@ -221,6 +239,7 @@ queries:
 #29- select so zanorenou podmienkou 1. sposob
   - id: 29
     description: "Select all records in person with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
+    fetch: true
     postgres: 'select * from person where ((data -> ''cars'') @> ''[{"license_plate": "1d642205-dc4e-4051-b653-bc0f6b768072"}]'')::boolean = true;'
     # TODO
     descriptionMongo: "Select name in person who owns car with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
@@ -235,6 +254,7 @@ queries:
 # result : {'_id': None, 'cars_avg': 2.49658} - maybe improve -> better output
   - id: 30
     description: "Get average of owned cars per person "
+    fetch: true
     postgres: SELECT AVG(jsonb_array_length(data->'cars')) from person;
     mongo:
       collection: person
@@ -244,35 +264,56 @@ queries:
 #31 - select so zanorenou podmienkou 2. sposob
   - id: 31
     description: "Select all records in person with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
+    fetch: true
     postgres: select * from person where data @@ '$.cars[*].license_plate == "1d642205-dc4e-4051-b653-bc0f6b768072"';
     # mongo: TODO
 
 #32 - select s viac zanorenou podmienkou vyhladavania
   - id: 32
     description: "Select all where date on tech_exam is 18/06/2015"
+    fetch: true
     postgres: 'select * from person where data @@ ''$.cars[*].tech_exams[*].date == "18/06/2015"'';'
     # mongo: TODO
 
 #33- vlozenie jedneho zaznamu
-#  - id: 33
-#    description: "Insert one record into person"
-#    postgres: 'INSERT INTO person (data) VALUES(''{"name":"Katherine Hewitt","age":54,"Address":{"street":"Congress Street","postcode":"486 18","city":"Twilight","state":"Pennsylvania"},"contacts":["+1 (808) 402-2645","+1 (897) 558-3084","+1 (852) 491-3646","+1 (921) 470-3415","+1 (861) 588-3466","+1 (967) 593-3615","+1 (858) 544-2339","+1 (989) 543-3403","+1 (853) 402-3725","+1 (958) 594-2307","+1 (912) 499-3326","+1 (993) 423-3343","+1 (979) 594-3001"],"cars":[],"pets":[{"name":"Weeks","species":"lion","age":14}]}'');'
-    # mongo: TODO
+  - id: 33
+    description: "Insert one record into person"
+    fetch: false
+    postgres: 'INSERT INTO person (data) VALUES(''{"name":"Katherine Hewitt","age":54,"Address":{"street":"Congress Street","postcode":"486 18","city":"Twilight","state":"Pennsylvania"},"contacts":["+1 (808) 402-2645","+1 (897) 558-3084","+1 (852) 491-3646","+1 (921) 470-3415","+1 (861) 588-3466","+1 (967) 593-3615","+1 (858) 544-2339","+1 (989) 543-3403","+1 (853) 402-3725","+1 (958) 594-2307","+1 (912) 499-3326","+1 (993) 423-3343","+1 (979) 594-3001"],"cars":[],"pets":[{"name":"Weeks","species":"lion","age":14}]}'');'
+    mongo:
+      collection: person
+      method: insert_one
+      value: '{"name":"Katherine Hewitt","age":54,"Address":{"street":"Congress Street","postcode":"486 18","city":"Twilight","state":"Pennsylvania"},"contacts":["+1 (808) 402-2645","+1 (897) 558-3084","+1 (852) 491-3646","+1 (921) 470-3415","+1 (861) 588-3466","+1 (967) 593-3615","+1 (858) 544-2339","+1 (989) 543-3403","+1 (853) 402-3725","+1 (958) 594-2307","+1 (912) 499-3326","+1 (993) 423-3343","+1 (979) 594-3001"],"cars":[],"pets":[{"name":"Weeks","species":"lion","age":14}]}'
 
 #34- update toplevel atribut
-#  - id: 34
-#    description: "Update name of person with id 12 to Meyers Parks Junior"
-#    postgres: 'UPDATE person SET data = jsonb_set(data, ''{name}'', '"Meyers Parks Junior"', false) WHERE id = 12;'
-#    # mongo: TODO
+  - id: 34
+    description: "Update name of person with id 12 to Meyers Parks Junior"
+    # TODO: postgres se nezparsuje
+    #postgres: 'UPDATE person SET data = jsonb_set(data, ''{name}'', '"Meyers Parks Junior"', false) WHERE id = 12;'
+    mongo:
+      collection: person
+      method: update
+      filter: '{ "_id": 12 }'
+      value:  '{"$set": {"name": "Meyers Parks Junior"}}'
+
 
 #35- update v array
-#  - id: 35
-#    description: "Update second contact of person with id 12 to +1 (666) 471-3603"
-#    postgres: 'UPDATE person SET data = jsonb_set(data, ''{contacts, 1}'', '"+1 (666) 471-3603"', true) WHERE id = 12;'
-    # mongo: TODO
+  - id: 35
+    description: "Update second contact of person with id 12 to +1 (666) 471-3603"
+    # TODO: postgres se nezparsuje
+    #postgres: 'UPDATE person SET data = jsonb_set(data, ''{contacts, 1}'', '"+1 (666) 471-3603"', true) WHERE id = 12;'
+    #mongo: TODO
+
 
 #36- nested update atribut v array
-#  - id: 36
-#    description: "Update name of first pet of person with id 12 to Dr. Craig"
-#    postgres: 'UPDATE person SET data = jsonb_set(data, ''{pets, 0, name}'', '"Dr. Craig"', true) WHERE id = 12;'
+  - id: 36
+    description: "Update name of first pet of person with id 12 to Dr. Craig"
+    # TODO: postgres se nezparsuje
+    #postgres: 'UPDATE person SET data = jsonb_set(data, ''{pets, 0, name}'', '"Dr. Craig"', true) WHERE id = 12;'
+    # mongo: TODO
+
+#37- nested update atribut v array
+  - id: 37
+    description: "Increment age by 1 to all pets which are older than 14 years"
+    #postgres: TODO
     # mongo: TODO

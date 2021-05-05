@@ -3,19 +3,30 @@ from time import time
 import json
 from Data.DataGenerator import DataGenerator
 
+"""
 get_result = {
     "count": lambda x: int(x),
     "find": lambda x: list(x),
     "aggregate": lambda x: list(x),
     "distinct": lambda x: list(x)
-}
+}"""
+
+
+def get_result(method):
+    if method == "count":
+        return lambda x: int(x)
+    if method in ["find", "aggregate", "distinct"]:
+        return lambda x: list(x)
+    else:
+        return lambda x: x
+
 
 class MongoDB:
     def __init__(self):
         self._client = MongoClient("mongodb://127.0.0.1:27017")
         self.mongo_db = self._client["pa036"]
-        #self.mongo_db["person"].drop()
-        #self.mongo_db["speed_violation"].drop()
+        # self.mongo_db["person"].drop()
+        # self.mongo_db["speed_violation"].drop()
         self.person_col = self.mongo_db["person"]
         self.speed_violation_col = self.mongo_db["speed_violation"]
 
@@ -68,11 +79,9 @@ class MongoDB:
 
         # takes collection, method and possibly filters or value and execute it
         start = time()
-        result = get_result[method](getattr(self.get_col(collection), method)(*args))
+        result = get_result(method)(getattr(self.get_col(collection), method)(*args))
         end = time()
 
-        #print("Mongo result:", result)
+        # print("Mongo result:", result)
 
         return end - start
-
-
