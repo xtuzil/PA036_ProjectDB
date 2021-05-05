@@ -9,21 +9,9 @@ enabled=1\n\
 gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' \
 > /etc/yum.repos.d/mongodb.repo
 
-RUN dnf -y install postgresql postgresql-server python3-psycopg2 mongodb-org python3-pymongo python3-pip
+RUN dnf -y install postgresql postgresql-server python3-psycopg2 mongodb-org python3-pymongo python3-pip python3-matplotlib nano
 
 RUN pip3 install pyaml jsonlines
-
-COPY "Data/personData.json" "/opt/pa036/Data/personData.json"
-COPY "Data/speedViolationData.json" "/opt/pa036/Data/speedViolationData.json"
-COPY "Data/DataGenerator.py" "/opt/pa036/Data/DataGenerator.py"
-COPY "Data/SpeedViolationDataGenerator.py" "/opt/pa036/Data/SpeedViolationDataGenerator.py"
-
-COPY "entrypoint.sh" "/opt/pa036/"
-COPY "ExperimentApp.py" "/opt/pa036/"
-COPY "main.py" "/opt/pa036/"
-COPY "MongoDB.py" "/opt/pa036/"
-COPY "Postgres.py" "/opt/pa036/"
-COPY "queries.yaml" "/opt/pa036/"
 
 # Initialize PostgreSQL database with initial tables and users
 RUN \
@@ -36,6 +24,18 @@ su - postgres -c "/usr/bin/pg_ctl stop" && \
 
 # Intialize a place for MongoDB to store data
 RUN mkdir -p /var/lib/mongo/data
+
+COPY "Data/personData.json" "/opt/pa036/Data/personData.json"
+COPY "Data/speedViolationData.json" "/opt/pa036/Data/speedViolationData.json"
+COPY "Data/DataGenerator.py" "/opt/pa036/Data/DataGenerator.py"
+COPY "Data/SpeedViolationDataGenerator.py" "/opt/pa036/Data/SpeedViolationDataGenerator.py"
+
+COPY "entrypoint.sh" "/opt/pa036/"
+COPY "ExperimentApp.py" "/opt/pa036/"
+COPY "main.py" "/opt/pa036/"
+COPY "MongoDB.py" "/opt/pa036/"
+COPY "Postgres.py" "/opt/pa036/"
+COPY "queries.yaml" "/opt/pa036/"
 
 WORKDIR "/opt/pa036"
 
