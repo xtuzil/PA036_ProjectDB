@@ -312,8 +312,8 @@
 #34- update toplevel atribut
   - id: 34
     description: "Update name of person with id 12 to Meyers Parks Junior"
-    # TODO: postgres se nezparsuje
-    #postgres: 'UPDATE person SET data = jsonb_set(data, ''{name}'', '"Meyers Parks Junior"', false) WHERE id = 12;'
+    fetch: false
+    postgres: UPDATE person SET data = jsonb_set(data, '{name}', '"Meyers Parks Junior"', false) WHERE id = 12;
     mongo:
       collection: person
       method: update
@@ -324,20 +324,20 @@
 #35- update v array
   - id: 35
     description: "Update second contact of person with id 12 to +1 (666) 471-3603"
-    # TODO: postgres se nezparsuje
-    #postgres: 'UPDATE person SET data = jsonb_set(data, ''{contacts, 1}'', '"+1 (666) 471-3603"', true) WHERE id = 12;'
+    fetch: false
+    postgres: UPDATE person SET data = jsonb_set(data, '{contacts, 1}', '"+1 (666) 471-3603"', true) WHERE id = 12;
     #mongo: TODO
 
 
 #36- nested update atribut v array
   - id: 36
     description: "Update name of first pet of person with id 12 to Dr. Craig"
-    # TODO: postgres se nezparsuje
-    #postgres: 'UPDATE person SET data = jsonb_set(data, ''{pets, 0, name}'', '"Dr. Craig"', true) WHERE id = 12;'
+    fetch: false
+    postgres: UPDATE person SET data = jsonb_set(data, '{pets, 0, name}', '"Dr. Craig"', true) WHERE id = 12;
     # mongo: TODO
 
-#37- nested update atribut v array
+#37- more nested update of all - atribut v nested array
   - id: 37
     description: "Increment age by 1 to all pets which are older than 14 years"
-    #postgres: TODO
+    #postgres: TODO I would do that without condition for more clear results
     # mongo: TODO

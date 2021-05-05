@@ -41,8 +41,8 @@ class PostgresDB:
             print(self.connection.get_dsn_parameters(), "\n")
 
             # Create tables
-            #for command in commands:
-                #self.cursor.execute(command)
+            for command in commands:
+                self.cursor.execute(command)
 
         except (Exception, Error) as error:
             print("Error while connecting to PostgreSQL", error)
@@ -117,7 +117,7 @@ class PostgresDB:
         if yaml_queries["fetch"]:
             record = self.cursor.fetchall()
         end = time()
-        #print("Postgres result: ", record)
+        print("Postgres result: ", record)
         return end - start
 
     def __del__(self):
