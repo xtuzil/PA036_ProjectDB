@@ -135,11 +135,11 @@ queries:
   - id: 20
     description: "Select count of name of person, age of person, license plate of person with record, date of speed violation, speed limit and actual speed of every speed violation record with actual speed higher than 100 (should be 80877 rows)"
     postgres: 'select count(*) from (select t.name, t.age, t.license_plate, (speed_violation.data->>''date'') as date, (speed_violation.data->>''speed_limit'') as speed_limit, (speed_violation.data->>''actual_speed'') as actual_speed from (select person.data ->> ''name'' as name, person.data ->> ''age'' as age, jsonb_array_elements(person.data -> ''cars'') -> ''license_plate'' as license_plate from person) as t inner join speed_violation on license_plate = speed_violation.data -> ''license_plate'' where (speed_violation.data -> ''actual_speed'')::int > 100) as k;'
-    mongo:
-      descriptionMongo: "Select names of all people who drove with speed 200"
-      collection: speed_violation
-      method: aggregate
-      filter: '[{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "person", "localField": "license_plate", "foreignField": "cars.license_plate", "as": "join"}}, {"$project":{"name":"$join.name"}} ]'
+    #mongo:
+      #descriptionMongo: "Select names of all people who drove with speed 200"
+      #collection: speed_violation
+      #method: aggregate
+      #filter: '[{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "person", "localField": "license_plate", "foreignField": "cars.license_plate", "as": "join"}}, {"$project":{"name":"$join.name"}} ]'
 
       #filter: [{"$lookup":{"from": "speed_violation", "localField": "cars.license_plate", "foreignField": "license_plate", "as": "join"}}, {"$project":{"name": 1, "join.actual_speed":1}} ]
       #filte3r: [{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "speed_violation", "let": { "license_plate": "$license_plate"},"pipeline": [{ "$match":{ "$expr":{ "$eq": [ "$license_plate",  "$cars.license_plate" ]}}}], "as": "join"}}, {"$project":{"actual_speed": 1, "join":1}} ]
@@ -230,12 +230,12 @@ queries:
       projection: '{"name":1, "_id":0}'
       filter: '{"cars.license_plate": "1d642205-dc4e-4051-b653-bc0f6b768072"}'
 
-#30- Agregace - prumer
+#30- Agregace - prumer (v postgres aplikovany na jsonb funkciu)
 # mongo shell: db.person.aggregate([{$group: {_id:null, "cars_avg": {$avg: {$size:"$cars"} } } }])
 # result : {'_id': None, 'cars_avg': 2.49658} - maybe improve -> better output
   - id: 30
     description: "Get average of owned cars per person "
-    # postgres: TODO
+    postgres: SELECT AVG(jsonb_array_length(data->'cars')) from person;
     mongo:
       collection: person
       method: aggregate
@@ -251,4 +251,28 @@ queries:
   - id: 32
     description: "Select all where date on tech_exam is 18/06/2015"
     postgres: 'select * from person where data @@ ''$.cars[*].tech_exams[*].date == "18/06/2015"'';'
+    # mongo: TODO
+
+#33- vlozenie jedneho zaznamu
+#  - id: 33
+#    description: "Insert one record into person"
+#    postgres: 'INSERT INTO person (data) VALUES(''{"name":"Katherine Hewitt","age":54,"Address":{"street":"Congress Street","postcode":"486 18","city":"Twilight","state":"Pennsylvania"},"contacts":["+1 (808) 402-2645","+1 (897) 558-3084","+1 (852) 491-3646","+1 (921) 470-3415","+1 (861) 588-3466","+1 (967) 593-3615","+1 (858) 544-2339","+1 (989) 543-3403","+1 (853) 402-3725","+1 (958) 594-2307","+1 (912) 499-3326","+1 (993) 423-3343","+1 (979) 594-3001"],"cars":[],"pets":[{"name":"Weeks","species":"lion","age":14}]}'');'
+    # mongo: TODO
+
+#34- update toplevel atribut
+#  - id: 34
+#    description: "Update name of person with id 12 to Meyers Parks Junior"
+#    postgres: 'UPDATE person SET data = jsonb_set(data, ''{name}'', '"Meyers Parks Junior"', false) WHERE id = 12;'
+#    # mongo: TODO
+
+#35- update v array
+#  - id: 35
+#    description: "Update second contact of person with id 12 to +1 (666) 471-3603"
+#    postgres: 'UPDATE person SET data = jsonb_set(data, ''{contacts, 1}'', '"+1 (666) 471-3603"', true) WHERE id = 12;'
+    # mongo: TODO
+
+#36- nested update atribut v array
+#  - id: 36
+#    description: "Update name of first pet of person with id 12 to Dr. Craig"
+#    postgres: 'UPDATE person SET data = jsonb_set(data, ''{pets, 0, name}'', '"Dr. Craig"', true) WHERE id = 12;'
     # mongo: TODO
