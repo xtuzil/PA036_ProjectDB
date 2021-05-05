@@ -139,13 +139,11 @@ queries:
       descriptionMongo: "Select names of all people who drove with speed 200"
       collection: speed_violation
       method: aggregate
-      filter: [{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "person", "localField": "license_plate", "foreignField": "cars.license_plate", "as": "join"}}, {"$project":{"name":"$join.name"}} ]
+      filter: '[{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "person", "localField": "license_plate", "foreignField": "cars.license_plate", "as": "join"}}, {"$project":{"name":"$join.name"}} ]'
 
       #filter: [{"$lookup":{"from": "speed_violation", "localField": "cars.license_plate", "foreignField": "license_plate", "as": "join"}}, {"$project":{"name": 1, "join.actual_speed":1}} ]
       #filte3r: [{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "speed_violation", "let": { "license_plate": "$license_plate"},"pipeline": [{ "$match":{ "$expr":{ "$eq": [ "$license_plate",  "$cars.license_plate" ]}}}], "as": "join"}}, {"$project":{"actual_speed": 1, "join":1}} ]
 
-
-{ "$match": { "actual_speed": { "$gt": 195}}},
 
 
 #21- cisty select bez akychkolvek podmienok
@@ -220,7 +218,7 @@ queries:
       method: distinct
       distinct: 'contacts'
 
-#29- jediny sposob ako vyhladavat v zanorenom poli
+#29- select so zanorenou podmienkou 1. sposob
   - id: 29
     description: "Select all records in person with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
     postgres: 'select * from person where ((data -> ''cars'') @> ''[{"license_plate": "1d642205-dc4e-4051-b653-bc0f6b768072"}]'')::boolean = true;'
@@ -231,9 +229,6 @@ queries:
       method: find
       projection: '{"name":1, "_id":0}'
       filter: '{"cars.license_plate": "1d642205-dc4e-4051-b653-bc0f6b768072"}'
-
-# select * from person where (((data -> 'cars') -> 'tech_exams') @> '{"defects": []}')::boolean = true; -> take nieco nejde spravit
-
 
 #30- Agregace - prumer
 # mongo shell: db.person.aggregate([{$group: {_id:null, "cars_avg": {$avg: {$size:"$cars"} } } }])
@@ -246,4 +241,14 @@ queries:
       method: aggregate
       filter: '[{"$group": {"_id":null, "cars_avg": {"$avg": {"$size":"$cars"} } } }]'
 
+#31 - select so zanorenou podmienkou 2. sposob
+  - id: 31
+    description: "Select all records in person with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
+    postgres: select * from person where data @@ '$.cars[*].license_plate == "1d642205-dc4e-4051-b653-bc0f6b768072"';
+    # mongo: TODO
 
+#32 - select s viac zanorenou podmienkou vyhladavania
+  - id: 32
+    description: "Select all where date on tech_exam is 18/06/2015"
+    postgres: 'select * from person where data @@ ''$.cars[*].tech_exams[*].date == "18/06/2015"'';'
+    # mongo: TODO
