@@ -37,12 +37,12 @@ class PostgresDB:
             self.cursor = self.connection.cursor()
 
             # Print PostgreSQL details
-            # print("PostgreSQL server information")
-            # print(self.connection.get_dsn_parameters(), "\n")
+            print("PostgreSQL server information")
+            print(self.connection.get_dsn_parameters(), "\n")
 
             # Create tables
-            for command in commands:
-                self.cursor.execute(command)
+            #for command in commands:
+                #self.cursor.execute(command)
 
         except (Exception, Error) as error:
             print("Error while connecting to PostgreSQL", error)
@@ -108,6 +108,10 @@ class PostgresDB:
             self.connection.rollback()
 
     def execute_query(self, yaml_queries):
+
+        if "postgres" not in yaml_queries:
+            return 0
+
         start = time()
         self.cursor.execute(yaml_queries["postgres"])
         record = self.cursor.fetchall()
