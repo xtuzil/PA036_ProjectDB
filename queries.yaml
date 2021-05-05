@@ -37,17 +37,17 @@
     mongo:
       collection: person
       method: find
-      filter: '{ "age" : 40 }'
-
+    filter: '{ "age" : 40 }'
+    
 #4- select s jednoduchou podmienkou na toplevel array atribute
   - id: 4
-    description: "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)"
+    description: "Select people with contact like '539-206' (top level atribut contacts)"
     fetch: true
-    postgres: select * from person where (data->>'contacts') like '%+1 (966) 429-3818%';
+    postgres: select * from person where (data->>'contacts') like '%539-206%';
     mongo:
       collection: person
       method: find
-      filter: '{ "contacts" : "+1 (966) 429-3818" }'
+      filter: '{ "contacts" : {"$regex": "539-206" } }'
 
 #5- select s jednoduchou podmienkou na toplevel array atribute s pouzitim existence funkcie
   - id: 5
@@ -92,28 +92,40 @@
     description: "Select average age of all people"
     fetch: true
     postgres: 'SELECT AVG((data->''age'')::int) FROM person;'
-    # mongo: TODO
+    mongo: 
+      collection: person
+      method: aggregate
+      filter: '[{"$group":{"_id": null,"avg": { "$avg": "$age" }}}]'
 
 #10- jednoduchy select na toplevel atribute s agregaciou maximum
   - id: 10
     description: "Select maximum age from all people"
     fetch: true
     postgres: 'SELECT MAX((data->''age'')::int) FROM person;'
-    # mongo: TODO
+    mongo: 
+      collection: person
+      method: aggregate
+      filter: '[{"$group":{"_id": null,"max": { "$max": "$age" }}}]'
 
 #11- jednoduchy select na toplevel atribute s agregaciou minimum
   - id: 11
     description: "Select minimum age from all people"
     fetch: true
     postgres: 'SELECT MIN((data->''age'')::int) FROM person;'
-    # mongo: TODO
+    mongo: 
+      collection: person
+      method: aggregate
+      filter: '[{"$group":{"_id": null,"min": { "$min": "$age" }}}]'
 
 #12- jednoduchy select na toplevel atribute s agregaciou sum
   - id: 12
     description: "Select sum of age of all people (should be 2943583)"
     fetch: true
     postgres: 'SELECT SUM((data->''age'')::int) FROM person;'
-    # mongo: TODO
+    mongo: 
+      collection: person
+      method: aggregate
+      filter: '[{"$group":{"_id": null,"sum": { "$sum": "$age" }}}]'
 
 #13- podmieneny select s agregaciou array_agg
   - id: 13
@@ -127,28 +139,40 @@
     description: "Count all from person table"
     fetch: true
     postgres: 'SELECT COUNT(*) FROM person;'
-    # mongo: TODO
+    mongo:
+      collection: person
+      method: count
+      filter: '{ }'
 
 #15- count na query #3
   - id: 15
     description: "Select count of people with age 40 (with containment function)"
     fetch: true
     postgres: 'SELECT COUNT(*) from person where (data @> ''{"age": 40}'')::boolean = true;'
-    # mongo: TODO
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age": 40 }'
 
 #16- count na query #4
   - id: 16
-    description: "Select count of people with contact '+1 (966) 429-3818' (top level atribut contacts)"
+    description: "Select count of people with contact like '539-206' (top level atribut contacts)"
     fetch: true
-    postgres: 'select count(*) from person where (data->>''contacts'') like ''%+1 (966) 429-3818%'';'
-    # mongo: TODO
+    postgres: 'select count(*) from person where (data->>''contacts'') like ''%539-206%'';'
+    mongo:
+      collection: person
+      method: find
+      filter: '{ "contacts" : {"$regex": "539-206"} }'
 
 #17- count na query #5
   - id: 17
     description: "Select count of people with contact '+1 (966) 429-3818' (top level atribut contacts)"
     fetch: true
     postgres: 'select count(*) from person where (data->''contacts'')::jsonb ? ''+1 (966) 429-3818'';'
-    # mongo: TODO
+    mongo:
+      collection: person
+      method: find
+      filter: '{ "contacts" : "+1 (966) 429-3818" }'
 
 #18- count na query #6
   - id: 18
