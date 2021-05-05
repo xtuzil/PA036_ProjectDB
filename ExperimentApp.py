@@ -15,14 +15,14 @@ class ExperimentApp:
 
     def run(self):
 
-        time_person_p, time_speed_violation_p, time_person2_p = self.postgres.load_data()
+        """time_person_p, time_speed_violation_p, time_person2_p = self.postgres.load_data()
         print("Postgres: Loading time for person table (INSERT with all data) is: ", time_person_p)
         print("Postgres: Loading time for speed_violation table (INSERT with all data) is: ", time_speed_violation_p)
         print("Postgres: Loading time for person2 table (convert and using copy function, no id) is: ", time_person2_p)
 
         time_person_m, time_speed_violation_m = self.mongo.load_data()
         print("MongoDB: Loading time for person table is: ", time_person_m)
-        print("MongoDB: Loading time for speed_violation table is: ", time_speed_violation_m)
+        print("MongoDB: Loading time for speed_violation table is: ", time_speed_violation_m)"""
 
         with open("queries.yaml", 'r') as stream:
             queries = yaml.safe_load(stream)

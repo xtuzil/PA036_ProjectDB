@@ -8,8 +8,8 @@ class MongoDB:
     def __init__(self):
         self._client = MongoClient("mongodb://127.0.0.1:27017")
         self.mongo_db = self._client["pa036"]
-        self.mongo_db["person"].drop()
-        self.mongo_db["speed_violation"].drop()
+        #self.mongo_db["person"].drop()
+        #self.mongo_db["speed_violation"].drop()
         self.person_col = self.mongo_db["person"]
         self.speed_violation_col = self.mongo_db["speed_violation"]
 
@@ -46,6 +46,9 @@ class MongoDB:
     def execute_query(self, yaml_query):
         args = []
 
+        if "mongo" not in yaml_query:
+            return 0
+
         collection = yaml_query["mongo"]["collection"]
         method = yaml_query["mongo"]["method"]
         if "filter" in yaml_query["mongo"]:
@@ -57,6 +60,13 @@ class MongoDB:
         start = time()
         result = getattr(self.get_col(collection), method)(*args)
         end = time()
+
+        # debug
+        if yaml_query["id"] == 7:
+            print("loop:")
+            for doc in result:
+                print(doc)
+
         print("Mongo result:", result)
 
         return end - start

@@ -1,3 +1,9 @@
+.DS_Store
+Data/.DS_STORE
+.idea/*
+Data/personData.json
+Data/speedViolationData.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
