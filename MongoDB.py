@@ -68,14 +68,12 @@ class MongoDB:
 
         collection = yaml_query["mongo"]["collection"]
         method = yaml_query["mongo"]["method"]
-        if "filter" in yaml_query["mongo"]:
-            args.append(json.loads(yaml_query["mongo"]["filter"]))
-        if "value" in yaml_query["mongo"]:
-            args.append(json.loads(yaml_query["mongo"]["value"]))
-        if "distinct" in yaml_query["mongo"]:
-            args.append(yaml_query["mongo"]["distinct"])
-        if "projection" in yaml_query["mongo"]:
-            args.append(json.loads(yaml_query["mongo"]["projection"]))
+        
+        for entry in "filter", "value", "distinct", "projection":
+            mongo_query = yaml_query["mongo"]
+            if entry in mongo_query:
+                args.append({"distinct": lambda x: mongo_query[x]}
+                    .get(entry, lambda x: json.loads(mongo_query[x]))(entry))
 
         if yaml_query["mongo"]["method"] == "update_many":
             print('update many')
