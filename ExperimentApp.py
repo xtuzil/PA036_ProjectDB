@@ -5,7 +5,8 @@ import yaml
 import csv
 from Postgres import PostgresDB
 from MongoDB import MongoDB
-
+import json
+import os
 
 class ExperimentApp:
 
@@ -28,6 +29,12 @@ class ExperimentApp:
         with open("queries.yaml", 'r') as stream:
             queries = yaml.safe_load(stream)
 
+        results_json = {}
+        
+        if os.path.isfile("results.json"):
+            with open("results.json", "r") as result_file:
+                results_json = json.load(result_file)
+        
         for query in queries["queries"]:
             query_id = query["id"]
             desc = query["description"]
@@ -38,14 +45,26 @@ class ExperimentApp:
 
             print("Mongo time:", mongo_time)
             print("Postgres time:", postgres_time)
-
+            
+            query_result = results_json.setdefault(str(query_id), {
+                "description": desc,
+                "columns": {},
+            })
+            
+            print(query_result)
+            
+            mongo_times = query_result["columns"].setdefault("MongoDB", [])
+            postgres_times = query_result["columns"].setdefault("PostgreSQL", [])
+            
+            mongo_times.append(mongo_time)
+            postgres_times.append(postgres_time)
+            
             # second time because cache?
             """mongo_time = self.mongo.execute_query(query)
             postgres_time = self.postgres.execute_query(query)
 
             print("Mongo time with cache applied:", mongo_time)
             print("Postgres time with cache applied:", postgres_time)"""
-
-
-
-
+            
+        with open("results.json", "w") as result_file:
+            json.dump(results_json, result_file, indent = 2)
