@@ -25,8 +25,8 @@ class MongoDB:
     def __init__(self):
         self._client = MongoClient("mongodb://127.0.0.1:27017")
         self.mongo_db = self._client["pa036"]
-        # self.mongo_db["person"].drop()
-        # self.mongo_db["speed_violation"].drop()
+        self.mongo_db["person"].drop()
+        self.mongo_db["speed_violation"].drop()
         self.person_col = self.mongo_db["person"]
         self.speed_violation_col = self.mongo_db["speed_violation"]
 
@@ -77,10 +77,16 @@ class MongoDB:
         if "projection" in yaml_query["mongo"]:
             args.append(json.loads(yaml_query["mongo"]["projection"]))
 
-        # takes collection, method and possibly filters or value and execute it
-        start = time()
-        result = get_result(method)(getattr(self.get_col(collection), method)(*args))
-        end = time()
+        if yaml_query["mongo"]["method"] == "update_many":
+            print('update many')
+            start = time()
+            self.person_col.update_many((json.loads(yaml_query["mongo"]["filter"])), (json.loads(yaml_query["mongo"]["value"])), array_filters=(json.loads(yaml_query["mongo"]["arrayFilters"])))
+            end = time()
+        else:
+            # takes collection, method and possibly filters or value and execute it
+            start = time()
+            result = get_result(method)(getattr(self.get_col(collection), method)(*args))
+            end = time()
 
         # print("Mongo result:", result)
 

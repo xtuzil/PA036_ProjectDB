@@ -24,6 +24,7 @@ class ExperimentApp:
         print("MongoDB: Loading time for person table is: ", time_person_m)
         print("MongoDB: Loading time for speed_violation table is: ", time_speed_violation_m)
 
+
         with open("queries.yaml", 'r') as stream:
             queries = yaml.safe_load(stream)
 

@@ -117,7 +117,6 @@ class PostgresDB:
         if yaml_queries["fetch"]:
             record = self.cursor.fetchall()
         end = time()
-        #print("Postgres result: ", record)
         return end - start
 
     def __del__(self):
