@@ -68,3 +68,20 @@ delete from person where data @@ '$.age[0] > 80';
 
 -- Update of an entry
 update person set data = jsonb_set(data, '{age}', '50') where data ->> 'name' = 'Riddle Mercado';
+
+-- Super complex "query", update nested attribute
+create temp table t as
+select id, jsonb_array_elements(data -> 'pets') as pets from person where data @@ '$.pets[*].age > 14';
+
+update t set pets = jsonb_set(pets, '{age}', ((pets -> 'age')::int + 1)::text::jsonb)
+where pets @@ '$.age > 14';
+
+with new_pets as (
+    select id, jsonb_agg(pets) as pets from t group by(id)
+)
+
+update person
+set data = jsonb_set(person.data, '{pets}', new_pets.pets)
+from person p inner join new_pets on p.id = new_pets.id
+where person.id = new_pets.id;
+--- end of super complex query
