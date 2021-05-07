@@ -195,7 +195,7 @@
       filter: '[ {"$project": {"_id":0,"arraySize":{"$size":"$cars"}}},{"$group": {"_id":null,"totalArraysSize":{"$sum":"$arraySize"}}}]'
 
 
-   #19- count na query #7
+#19- count na query #7
   - id: 19
     description: "Select count of all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)"
     fetch: true
@@ -316,8 +316,6 @@
       filter: '{"cars.license_plate": "1d642205-dc4e-4051-b653-bc0f6b768072"}'
 
 #30- Agregace - prumer (v postgres aplikovany na jsonb funkciu)
-# mongo shell: db.person.aggregate([{$group: {_id:null, "cars_avg": {$avg: {$size:"$cars"} } } }])
-# result : {'_id': None, 'cars_avg': 2.49658} - maybe improve -> better output
   - id: 30
     description: "Get average of owned cars per person "
     fetch: true
@@ -359,10 +357,10 @@
     description: "Update name of person with id 12 to Meyers Parks Junior"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{name}', '"Meyers Parks Junior"', false) WHERE id = 12;
-    #mongo:
+    #mongo: TODO ID
       #collection: person
-      #method: update
-      #filter: '{ "_id": 12 }' #TODO
+      #method: update_one
+      #filter: '{ "_id": ObjectId("607ab4e4daa8fcc3c015de8d") }'
       #value:  '{"$set": {"name": "Meyers Parks Junior"}}'
 
 
@@ -371,11 +369,11 @@
     description: "Update first contact of person with id 12 to +1 (666) 471-3603 (add when non exist)"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{contacts, 0}', '"+1 (666) 471-3603"', true) WHERE id = 12;
-    #mongo: TODO - pozor spravila som zmenu na prvy atribut
+    #mongo: TODO ID
       #collection: person
-      #method: update
+      #method: update_one
       #filter: '{ "_id": 12 }'
-      #value: '{"$set": {"contacts.1.content": "+1 (666) 471-3603"}}'
+      #value: '{"$set": {"contacts.0": "+1 (666) 471-3603"}}'
 
 
 #36- nested update atribut v array
@@ -383,7 +381,11 @@
     description: "Update name of first pet of person with id 12 to Dr. Craig"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{pets, 0, name}', '"Dr. Craig"', true) WHERE id = 12;
-    # mongo: TODO
+    #mongo: TODO ID
+      #collection: person
+      #method: update_one
+      #filter: '{ "_id": ObjectId("607ab4e4daa8fcc3c015de8d") }'
+      #value: '{"$set": {"pets.0.name": "Dr. Craig"}}'
 
 #37- more nested update of all - atribut v nested array
   - id: 37
@@ -402,53 +404,85 @@
     description: "Update age of person to 84 when he/she has 85"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{age}', '84', false) WHERE (data -> 'age')::int =85;
-    #mongo: TODO
+    mongo:
+      collection: person
+      method: update_many
+      filter: '{ "age": { "$eq" : 85 } }'
+      value: '{ "set": {"age": 84 } }'
 
 #39- update v array multiple records
   - id: 39
     description: "Update (add when non exist) first contact to +1 (666) 666-6666 for everyone with age 18"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{contacts, 0}', '"+1 (666) 666-6666"', true) WHERE (data -> 'age')::int = 18;
-    #mongo: TODO - check 35 pls I made little change :-)
+    mongo:
+      collection: person
+      method: update_many
+      filter: '{ "age": { "$eq" : 18 } }'
+      value: '{"$set": {"contacts.0": "+1 (666) 666-6666"}}'
 
 #40- nested update atribut v array multiple records
   - id: 40
     description: "Update species of pets for all from horse to pony"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{pets, 0, species}', '"pony"', true) WHERE data @@ '$.pets[*].species == "horse"';
-    # mongo: TODO
+    mongo:
+      collection: person
+      method: update_many
+      filter: '{ "pets.species": { "$eq" : "horse" } }'
+      value: '{"$set": {"pets.$[elem].species": "pony"} }'
+      arrayFilters: '[ { "elem.species": { "$eq" : "horse" } } ]'
 
 #41- delete toplevel atribute -one record (complicated, need to have specific jsonb you want to "update")
   - id: 41
     description: "Delete age from record with id 12"
     fetch: false
     postgres: 'UPDATE person SET data = (SELECT jsonb ''{"age": 55, "cars": [], "name": "Meyers Parks", "pets": [{"age": 6, "name": "Craig", "species": "horse"}, {"age": 7, "name": "Eddie", "species": "mouse"}, {"age": 8, "name": "Hollie", "species": "rabbit"}, {"age": 4, "name": "Allen", "species": "rabbit"}, {"age": 14, "name": "Malone", "species": "horse"}], "Address": {"city": "Lindisfarne", "state": "Delaware", "street": "Whitney Avenue", "postcode": "946 88"}, "contacts": ["+1 (967) 471-3603", "+1 (814) 492-2778", "+1 (998) 597-3090", "+1 (811) 438-3879", "+1 (809) 453-3951", "+1 (910) 534-3344", "+1 (838) 496-3026", "+1 (997) 413-3537", "+1 (981) 551-3583", "+1 (821) 463-3727", "+1 (938) 466-2232", "+1 (952) 424-3443", "+1 (967) 447-3044", "+1 (999) 421-2239", "+1 (876) 518-2046"]}'' - ''age'' FROM person WHERE id = 12) WHERE person.id = 12;'
-    # mongo: TODO
+    #mongo: TODO ID
+      #collection: person
+      #method: update_one
+      #filter: '{ "_id": ObjectId("607ab4e4daa8fcc3c015de8d") }'
+      #value: '{"$unset": {"age": 1}}'
 
 #42- delete element in array -one record (complicated, need to have specific jsonb you want to "update")
   - id: 42
     description: "Delete first contact from record with id 12"
     fetch: false
     postgres: 'UPDATE person SET data = (SELECT jsonb ''{"age": 55, "cars": [], "name": "Meyers Parks", "pets": [{"age": 6, "name": "Craig", "species": "horse"}, {"age": 7, "name": "Eddie", "species": "mouse"}, {"age": 8, "name": "Hollie", "species": "rabbit"}, {"age": 4, "name": "Allen", "species": "rabbit"}, {"age": 14, "name": "Malone", "species": "horse"}], "Address": {"city": "Lindisfarne", "state": "Delaware", "street": "Whitney Avenue", "postcode": "946 88"}, "contacts": ["+1 (967) 471-3603", "+1 (814) 492-2778", "+1 (998) 597-3090", "+1 (811) 438-3879", "+1 (809) 453-3951", "+1 (910) 534-3344", "+1 (838) 496-3026", "+1 (997) 413-3537", "+1 (981) 551-3583", "+1 (821) 463-3727", "+1 (938) 466-2232", "+1 (952) 424-3443", "+1 (967) 447-3044", "+1 (999) 421-2239", "+1 (876) 518-2046"]}'' #- ''{contacts, 0}'' FROM person WHERE id = 12) WHERE person.id = 12;'
-    # mongo: TODO
+    #mongo: TODO ID
+      #collection: person
+      #method: update_one
+      #filter: '{ "_id": ObjectId("607ab4e4daa8fcc3c015de8d") }'
+      #value: '{"$unset": {"contacts.0": 1}}'
 
 #43- delete element in nested array -one record (complicated, need to have specific jsonb you want to "update")
   - id: 43
     description: "Delete age of first pet from record with id 12"
     fetch: false
     postgres: 'UPDATE person SET data = (SELECT jsonb ''{"age": 55, "cars": [], "name": "Meyers Parks", "pets": [{"age": 6, "name": "Craig", "species": "horse"}, {"age": 7, "name": "Eddie", "species": "mouse"}, {"age": 8, "name": "Hollie", "species": "rabbit"}, {"age": 4, "name": "Allen", "species": "rabbit"}, {"age": 14, "name": "Malone", "species": "horse"}], "Address": {"city": "Lindisfarne", "state": "Delaware", "street": "Whitney Avenue", "postcode": "946 88"}, "contacts": ["+1 (967) 471-3603", "+1 (814) 492-2778", "+1 (998) 597-3090", "+1 (811) 438-3879", "+1 (809) 453-3951", "+1 (910) 534-3344", "+1 (838) 496-3026", "+1 (997) 413-3537", "+1 (981) 551-3583", "+1 (821) 463-3727", "+1 (938) 466-2232", "+1 (952) 424-3443", "+1 (967) 447-3044", "+1 (999) 421-2239", "+1 (876) 518-2046"]}'' #- ''{pets, 0, age}'' FROM person WHERE id = 12) WHERE person.id = 12;'
-    # mongo: TODO
+    #mongo: TODO ID
+      #collection: person
+      #method: update_one
+      #filter: '{ "_id": ObjectId("607ab4e4daa8fcc3c015de8d") }'
+      #value: '{"$unset": {"pets.0.age": 1}}'
 
 #44- delete one record
   - id: 44
     description: "Delete record with id 12"
     fetch: false
     postgres: DELETE FROM person WHERE id = 12;
-    # mongo: TODO
+    #mongo: TODO ID
+      #collection: person
+      #method: delete_one
+      #filter: '{ "_id": ObjectId("607ab4e4daa8fcc3c015de8d") }'
+
 
 #45- delete multiple records
   - id: 45
     description: "Delete record where age is 26"
     fetch: false
     postgres: DELETE FROM person WHERE (data -> 'age')::int = 26;
-    # mongo: TODO
+    mongo:
+      collection: person
+      method: delete_many
+      filter: '{ "age": { "$eq": 26} }'
