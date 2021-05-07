@@ -15,8 +15,17 @@ class ExperimentApp:
         self.mongo = MongoDB()
 
     def run(self):
-
-        time_person_p, time_speed_violation_p, time_person2_p = self.postgres.load_data()
+        
+        psql_index_text = {
+            "": "PostgreSQL binary json",
+            "jsonb_ops": "PostgreSQL with index ",
+            "jsonb_path_ops": "PostgreSQL with index",
+        }
+        
+        # Change this to one of the valid keys in `psql_index_text`
+        psql_index = ""
+        
+        time_person_p, time_speed_violation_p, time_person2_p = self.postgres.load_data(psql_index)
         print("Postgres: Loading time for person table (INSERT with all data) is: ", time_person_p)
         print("Postgres: Loading time for speed_violation table (INSERT with all data) is: ", time_speed_violation_p)
         print("Postgres: Loading time for person2 table (convert and using copy function, no id) is: ", time_person2_p)
@@ -54,7 +63,10 @@ class ExperimentApp:
             print(query_result)
             
             mongo_times = query_result["columns"].setdefault("MongoDB", [])
-            postgres_times = query_result["columns"].setdefault("PostgreSQL", [])
+            
+            # The text here needs to match one of the values in visualization.py
+            # dicitonary `columns`
+            postgres_times = query_result["columns"].setdefault(psql_index_text[psql_index] + psql_index, [])
             
             mongo_times.append(mongo_time)
             postgres_times.append(postgres_time)

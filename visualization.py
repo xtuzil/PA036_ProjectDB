@@ -1,41 +1,45 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
-import numpy as np
+import numpy
 import json
+import math
 
 # https://matplotlib.org/stable/gallery/color/named_colors.html
 colors = {
     "MongoDB": "limegreen",
-    "PostgreSQL": "skyblue",
+    "MongoDB with index": "green",
     
-    "MongoDB with index": "limegreen",
-    "PostgreSQL with index": "skyblue",
+    "PostgreSQL text json": "skyblue",
+    "PostgreSQL binary json": "deepskyblue",
+    "PostgreSQL with index jsonb_ops": "lightskyblue",
+    "PostgreSQL with index jsonb_path_ops": "steelblue",
 }
 
 with open("results.json", "r") as results_file:
     results = json.load(results_file)
 
-#for result in results.values():
-for result in results["1"],:
+mat_size = math.ceil(math.sqrt(len(results)))
+fig, axes = plt.subplots(
+    nrows = mat_size, ncols = mat_size,
+    # This determines the size in pixels of the final image
+    figsize = [mat_size * 6 * i for i in (1, 1)]
+)
+
+for result, index in zip(results.values(), range(mat_size * mat_size)):
+    ax = axes[index // mat_size][index % mat_size]
     labels = list(result["columns"].keys())
-    data = [[i * 1000 for i in column] for column in result["columns"].values()]
+    data = [column for column in result["columns"].values()]
     
-    fig, ax = plt.subplots()
-    
-    boxplot = ax.boxplot(
-        data,
-        vert = True,  # vertical box alignment
-        patch_artist = True,  # fill with color
-        labels = labels,
-        showfliers = False,
-    )  # will be used to label x-ticks
+    bar = ax.bar(
+        labels,
+        [numpy.average(d) * 1000 for d in data],
+        yerr = [numpy.std(d) * 1000 for d in data],
+        width = 0.35,
+        color = [colors[col] for col in labels],
+    )
     
     ax.set_title(result["description"])
-    
-    ## Set colors
-    for patch, label in zip(boxplot["boxes"], labels):
-        patch.set_facecolor(colors[label])
     
     ax.set_ylim(0)
     
@@ -43,8 +47,5 @@ for result in results["1"],:
     ax.yaxis.grid(True)
     ax.set_xlabel("Database type")
     ax.set_ylabel("Time [ms]")
-    
-    plt.show()
-    
-    print(labels)
-    print(result)
+
+plt.savefig("queries.png")

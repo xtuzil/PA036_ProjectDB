@@ -48,7 +48,7 @@ class PostgresDB:
             print("Error while connecting to PostgreSQL", error)
 
     # load person json data and speed_violation json data to the table as jsonb
-    def load_data(self):
+    def load_data(self, index_type):
 
         if not DataGenerator.generate():
             return None, None
@@ -81,6 +81,12 @@ class PostgresDB:
 
         ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
         sql_string_person2 = 'copy person2 from \'%s/Data/person.json\';' % ROOT_DIR
+        
+        # INDEX
+        if index_type in {"jsonb_ops", "jsonb_path_ops"}:
+            self.cursor.execute(f"create index on person using gin (data {index_type});")
+            self.cursor.execute(f"create index on person using gin ((data -> 'cars') {index_type});")
+            self.cursor.execute(f"create index on speed_violation using gin (data {index_type});")
 
         try:
             start_person = time()
