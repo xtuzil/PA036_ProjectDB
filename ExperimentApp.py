@@ -25,24 +25,43 @@ class ExperimentApp:
         # Change this to one of the valid keys in `psql_index_text`
         psql_index = ""
         
-        time_person_p, time_speed_violation_p, time_person2_p = self.postgres.load_data(psql_index)
-        print("Postgres: Loading time for person table (INSERT with all data) is: ", time_person_p)
-        print("Postgres: Loading time for speed_violation table (INSERT with all data) is: ", time_speed_violation_p)
-        print("Postgres: Loading time for person2 table (convert and using copy function, no id) is: ", time_person2_p)
-
-        time_person_m, time_speed_violation_m = self.mongo.load_data()
-        print("MongoDB: Loading time for person table is: ", time_person_m)
-        print("MongoDB: Loading time for speed_violation table is: ", time_speed_violation_m)
-
-
-        with open("queries.yaml", 'r') as stream:
-            queries = yaml.safe_load(stream)
-
         results_json = {}
         
         if os.path.isfile("results.json"):
             with open("results.json", "r") as result_file:
                 results_json = json.load(result_file)
+        
+        time_person_p, time_speed_violation_p, time_person2_p = self.postgres.load_data(psql_index)
+        print("Postgres: Loading time for person table (INSERT with all data) is: ", time_person_p)
+        print("Postgres: Loading time for speed_violation table (INSERT with all data) is: ", time_speed_violation_p)
+        print("Postgres: Loading time for person2 table (convert and using copy function, no id) is: ", time_person2_p)
+        
+        time_person_m, time_speed_violation_m = self.mongo.load_data()
+        print("MongoDB: Loading time for person table is: ", time_person_m)
+        print("MongoDB: Loading time for speed_violation table is: ", time_speed_violation_m)
+        
+        query_result = results_json.setdefault("Data loading person", {
+            "description": "Data loading person",
+            "columns": {},
+        })
+        
+        postgres_times = query_result["columns"].setdefault(psql_index_text[psql_index] + psql_index, [])
+        postgres_times.append(time_person_p)
+        mongo_times = query_result["columns"].setdefault("MongoDB", [])
+        mongo_times.append(time_person_m)
+        
+        query_result = results_json.setdefault("Data loading speed_violation", {
+            "description": "Data loading speed_violation",
+            "columns": {},
+        })
+        
+        postgres_times = query_result["columns"].setdefault(psql_index_text[psql_index] + psql_index, [])
+        postgres_times.append(time_speed_violation_p)
+        mongo_times = query_result["columns"].setdefault("MongoDB", [])
+        mongo_times.append(time_speed_violation_m)
+
+        with open("queries.yaml", 'r') as stream:
+            queries = yaml.safe_load(stream)
         
         for query in queries["queries"]:
             query_id = query["id"]
