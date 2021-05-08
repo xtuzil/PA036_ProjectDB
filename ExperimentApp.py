@@ -31,71 +31,61 @@ class ExperimentApp:
             with open("results.json", "r") as result_file:
                 results_json = json.load(result_file)
         
-        time_person_p, time_speed_violation_p, time_person2_p = self.postgres.load_data(psql_index)
-        print("Postgres: Loading time for person table (INSERT with all data) is: ", time_person_p)
-        print("Postgres: Loading time for speed_violation table (INSERT with all data) is: ", time_speed_violation_p)
-        print("Postgres: Loading time for person2 table (convert and using copy function, no id) is: ", time_person2_p)
-        
-        time_person_m, time_speed_violation_m = self.mongo.load_data()
-        print("MongoDB: Loading time for person table is: ", time_person_m)
-        print("MongoDB: Loading time for speed_violation table is: ", time_speed_violation_m)
-        
-        query_result = results_json.setdefault("Data loading person", {
-            "description": "Data loading person",
-            "columns": {},
-        })
-        
-        postgres_times = query_result["columns"].setdefault(psql_index_text[psql_index] + psql_index, [])
-        postgres_times.append(time_person_p)
-        mongo_times = query_result["columns"].setdefault("MongoDB", [])
-        mongo_times.append(time_person_m)
-        
-        query_result = results_json.setdefault("Data loading speed_violation", {
-            "description": "Data loading speed_violation",
-            "columns": {},
-        })
-        
-        postgres_times = query_result["columns"].setdefault(psql_index_text[psql_index] + psql_index, [])
-        postgres_times.append(time_speed_violation_p)
-        mongo_times = query_result["columns"].setdefault("MongoDB", [])
-        mongo_times.append(time_speed_violation_m)
-
         with open("queries.yaml", 'r') as stream:
             queries = yaml.safe_load(stream)
         
-        for query in queries["queries"]:
-            query_id = query["id"]
-            desc = query["description"]
-            print(f"\nRunning query #{query_id}:", desc)
-
-            mongo_time = self.mongo.execute_query(query)
-            postgres_time = self.postgres.execute_query(query)
-
-            print("Mongo time:", mongo_time)
-            print("Postgres time:", postgres_time)
+        def default_result(name, inner_name, *args):
+            # optional description argument
+            desc = name if len(args) == 0 else args[0]
             
-            query_result = results_json.setdefault(str(query_id), {
+            return results_json.setdefault(name, {
                 "description": desc,
                 "columns": {},
-            })
+            })["columns"].setdefault(inner_name, [])
+        
+        def run_mongo():
+            time_person_m, time_speed_violation_m = self.mongo.load_data()
+            print("MongoDB: Loading time for person table is: ", time_person_m)
+            print("MongoDB: Loading time for speed_violation table is: ", time_speed_violation_m)
             
-            print(query_result)
+            default_result("Data loading person", "MongoDB").append(time_person_m)
+            default_result("Data loading speed_violation", "MongoDB").append(time_speed_violation_m)
             
-            mongo_times = query_result["columns"].setdefault("MongoDB", [])
-            
-            # The text here needs to match one of the values in visualization.py
-            # dicitonary `columns`
-            postgres_times = query_result["columns"].setdefault(psql_index_text[psql_index] + psql_index, [])
-            
-            mongo_times.append(mongo_time)
-            postgres_times.append(postgres_time)
-            
-            # second time because cache?
-            """mongo_time = self.mongo.execute_query(query)
-            postgres_time = self.postgres.execute_query(query)
+            for query in queries["queries"]:
+                query_id = query["id"]
+                desc = query["description"]
+                print(f"\nRunning query #{query_id}:", desc)
 
-            print("Mongo time with cache applied:", mongo_time)
-            print("Postgres time with cache applied:", postgres_time)"""
+                mongo_time = self.mongo.execute_query(query)
+
+                print("Mongo time:", mongo_time)
+                
+                default_result(str(query_id), "MongoDB", desc).append(mongo_time)
+        
+        def run_postgres():
+            time_person_p, time_speed_violation_p, time_person2_p = self.postgres.load_data(psql_index)
+            print("Postgres: Loading time for person table (INSERT with all data) is: ", time_person_p)
+            print("Postgres: Loading time for speed_violation table (INSERT with all data) is: ", time_speed_violation_p)
+            print("Postgres: Loading time for person2 table (convert and using copy function, no id) is: ", time_person2_p)
+            
+            default_result("Data loading person", psql_index_text[psql_index] + psql_index).append(time_person_p)
+            default_result("Data loading speed_violation", psql_index_text[psql_index] + psql_index).append(time_speed_violation_p)
+            
+            for query in queries["queries"]:
+                query_id = query["id"]
+                desc = query["description"]
+                print(f"\nRunning query #{query_id}:", desc)
+
+                postgres_time = self.postgres.execute_query(query)
+
+                print("Postgres time:", postgres_time)
+                
+                # The text here needs to match one of the values in visualization.py
+                # dicitonary `columns`
+                default_result(str(query_id), "MongoDB", desc).append(postgres_time)
+        
+        run_mongo()
+        run_postgres()
             
         with open("results.json", "w") as result_file:
             json.dump(results_json, result_file, indent = 2)
