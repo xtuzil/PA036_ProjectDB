@@ -408,7 +408,7 @@
       collection: person
       method: update_many
       filter: '{ "age": { "$eq" : 85 } }'
-      value: '{ "set": {"age": 84 } }'
+      value: '{ "$set": {"age": 84 } }'
 
 #39- update v array multiple records
   - id: 39

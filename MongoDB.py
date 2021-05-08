@@ -75,7 +75,7 @@ class MongoDB:
                 args.append({"distinct": lambda x: mongo_query[x]}
                     .get(entry, lambda x: json.loads(mongo_query[x]))(entry))
 
-        if yaml_query["mongo"]["method"] == "update_many":
+        if "arrayFilters" in yaml_query["mongo"]:
             print('update many')
             start = time()
             self.person_col.update_many((json.loads(yaml_query["mongo"]["filter"])), (json.loads(yaml_query["mongo"]["value"])), array_filters=(json.loads(yaml_query["mongo"]["arrayFilters"])))
