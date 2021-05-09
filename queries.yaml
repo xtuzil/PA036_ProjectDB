@@ -89,11 +89,11 @@
     #TODO: mongo mega pomaly nevim, jestli vyresim
     mongo:
       descriptionMongo: "Select names of all people who drove with speed 200"
-      collection: person
+      collection: speed_violation
       method: aggregate
-      filter: '[{"$project": {"name":1, "age":1, "cars.license_plate":1, "_id":0}},{"$unwind":"$cars"},{"$lookup":{"from": "speed_violation","let":{ "plate": "$cars.license_plate"},"pipeline":[{"$match":{"$expr":{"$and":[{"$gt":["$actual_speed",199]},{"$eq": [ "$license_plate", "$$plate"]}]}}},{ "$project": {"date":1} }],"as": "violations"}},{"$unwind":"$violations"},{"$project": {"_id":0}}]'
-      #filter: '[{ "$match": { "actual_speed": { "$gt": 199}}},{"$lookup":{"from": "person","let":{ "plate": "$license_plate"},"pipeline":[{"$project": {"name":1, "age":1, "cars.license_plate":1, "_id":0}},{"$match":{"$expr":{"$in": [ "$$plate", "$cars.license_plate"]}}},{ "$project": {"name":1,"age":1 } }],"as": "violations"}},{"$unwind":"$violations"},{"$project": {"_id":0}}]'
-       #filter: '[{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "person", "localField": "license_plate", "foreignField": "cars.license_plate", "as": "join"}}, {"$project":{"name":"$join.name"}} ]'
+      filter: '[{ "$match": { "actual_speed": { "$gt": 199}}},{"$lookup":{"from": "person","let":{ "plate": "$license_plate"},"pipeline":[{"$project": {"name":1, "age":1, "cars.license_plate":1, "_id":0}},{"$match":{"$expr":{"$in": [ "$$plate", "$cars.license_plate"]}}},{ "$project": {"name":1,"age":1 } }],"as": "violations"}},{"$unwind":"$violations"},{"$project": {"_id":0}}]'
+      #filter: '[{"$project": {"name":1, "age":1, "cars.license_plate":1, "_id":0}},{"$unwind":"$cars"},{"$lookup":{"from": "speed_violation","let":{ "plate": "$cars.license_plate"},"pipeline":[{"$match":{"$expr":{"$and":[{"$gt":["$actual_speed",199]},{"$eq": [ "$license_plate", "$$plate"]}]}}},{ "$project": {"date":1} }],"as": "violations"}},{"$unwind":"$violations"},{"$project": {"_id":0}}]'
+      #filter: '[{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "person", "localField": "license_plate", "foreignField": "cars.license_plate", "as": "join"}}, {"$project":{"name":"$join.name"}} ]'
 
 
    #9- jednoduchy select na toplevel atribute s agregaciou average
@@ -173,7 +173,7 @@
     postgres: 'select count(*) from person where (data->>''contacts'') like ''%539-206%'';'
     mongo:
       collection: person
-      method: find
+      method: count
       filter: '{ "contacts" : {"$regex": "539-206"} }'
 
 #17- count na query #5
@@ -183,7 +183,7 @@
     postgres: 'select count(*) from person where (data->''contacts'')::jsonb ? ''+1 (966) 429-3818'';'
     mongo:
       collection: person
-      method: find
+      method: count
       filter: '{ "contacts" : "+1 (966) 429-3818" }'
 
 #18- count na query #6
@@ -555,7 +555,7 @@
 
 # #52 delete with arithmetic condition
 #   - id: 52
-#     description: "lookup/join + aggregation maximum speed violation (difference between limit and actual speed) by people living in Utah older then 92"
+#     description: "delete all speed_violation records where the limit was axceeded by at most 5"
 #     fetch: false
 #     #postgres: DELETE FROM person WHERE (data -> 'age')::int = 26;
 #     mongo:
