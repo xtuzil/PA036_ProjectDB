@@ -15,21 +15,11 @@ class ExperimentApp:
         self.mongo = MongoDB()
 
     def run(self):
-        
         psql_index_text = {
             "": "PostgreSQL binary json",
             "jsonb_ops": "PostgreSQL with index ",
-            "jsonb_path_ops": "PostgreSQL with index",
+            "jsonb_path_ops": "PostgreSQL with index ",
         }
-        
-        # Change this to one of the valid keys in `psql_index_text`
-        psql_index = ""
-        
-        results_json = {}
-        
-        if os.path.isfile("results.json"):
-            with open("results.json", "r") as result_file:
-                results_json = json.load(result_file)
         
         with open("queries.yaml", 'r') as stream:
             queries = yaml.safe_load(stream)
@@ -62,15 +52,16 @@ class ExperimentApp:
                 
                 default_result(str(query_id), "MongoDB", desc).append(mongo_time)
         
-        def run_postgres():
-            time_person_p, time_speed_violation_p, time_person2_p = self.postgres.load_data(psql_index)
+        def load_postgres(psql_index):
+            time_person_p, time_speed_violation_p, time_person2_p = self.postgres.load_data()
             print("Postgres: Loading time for person table (INSERT with all data) is: ", time_person_p)
             print("Postgres: Loading time for speed_violation table (INSERT with all data) is: ", time_speed_violation_p)
             print("Postgres: Loading time for person2 table (convert and using copy function, no id) is: ", time_person2_p)
             
             default_result("Data loading person", psql_index_text[psql_index] + psql_index).append(time_person_p)
             default_result("Data loading speed_violation", psql_index_text[psql_index] + psql_index).append(time_speed_violation_p)
-            
+        
+        def run_postgres(psql_index):
             for query in queries["queries"]:
                 query_id = query["id"]
                 desc = query["description"]
@@ -82,10 +73,37 @@ class ExperimentApp:
                 
                 # The text here needs to match one of the values in visualization.py
                 # dicitonary `columns`
-                default_result(str(query_id), "MongoDB", desc).append(postgres_time)
+                default_result(str(query_id), psql_index_text[psql_index] + psql_index, desc).append(postgres_time)
         
-        run_mongo()
-        run_postgres()
+        #run_mongo()
+        
+        # Postgres
+        for i in range(10):
+            results_json = {}
+        
+            if os.path.isfile("results.json"):
+                with open("results.json", "r") as result_file:
+                    results_json = json.load(result_file)
+                    
+            load_postgres("")
+            run_postgres("")
+            self.postgres.delete_entries()
             
-        with open("results.json", "w") as result_file:
-            json.dump(results_json, result_file, indent = 2)
+            self.postgres.create_index("jsonb_ops")
+            load_postgres("jsonb_ops")
+            self.postgres.drop_index("jsonb_ops")
+            self.postgres.create_index("jsonb_ops")
+            run_postgres("jsonb_ops")
+            self.postgres.drop_index("jsonb_ops")
+            self.postgres.delete_entries()
+            
+            self.postgres.create_index("jsonb_path_ops")
+            load_postgres("jsonb_path_ops")
+            self.postgres.drop_index("jsonb_path_ops")
+            self.postgres.create_index("jsonb_path_ops")
+            run_postgres("jsonb_path_ops")
+            self.postgres.drop_index("jsonb_path_ops")
+            self.postgres.delete_entries()
+            
+            with open("results.json", "w") as result_file:
+                json.dump(results_json, result_file, indent = 2)

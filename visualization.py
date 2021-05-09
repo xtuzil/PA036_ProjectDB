@@ -19,15 +19,16 @@ colors = {
 with open("results.json", "r") as results_file:
     results = json.load(results_file)
 
-mat_size = math.ceil(math.sqrt(len(results)))
+width = math.ceil(math.sqrt(len(results)))
 fig, axes = plt.subplots(
-    nrows = mat_size, ncols = mat_size,
+    ncols = width,
+    nrows = (len(results) + width - 1) // width,
     # This determines the size in pixels of the final image
-    figsize = [mat_size * 6 * i for i in (1, 1)]
+    figsize = [width * 6 * i for i in (1, 1)]
 )
 
-for result, index in zip(results.values(), range(mat_size * mat_size)):
-    ax = axes[index // mat_size][index % mat_size]
+for result, index in zip(results.values(), range(len(results))):
+    ax = axes[index // width][index % width]
     labels = list(result["columns"].keys())
     data = [column for column in result["columns"].values()]
     

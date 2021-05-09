@@ -396,7 +396,7 @@
   - id: 37
     description: "Increment age by 1 to all pets which are older than 14 years"
     fetch: false
-    postgres: 'CREATE TEMP TABLE t AS SELECT id, jsonb_array_elements(data -> ''pets'') AS pets FROM person WHERE data @@ ''$.pets[*].age > 14''; UPDATE t SET pets = jsonb_set(pets, ''{age}'', ((pets -> ''age'')::int + 1)::text::jsonb) WHERE pets @@ ''$.age > 14''; with new_pets AS (SELECT id, jsonb_agg(pets) AS pets FROM t GROUP BY(id)) UPDATE person SET data = jsonb_set(person.data, ''{pets}'', new_pets.pets) FROM person p INNER JOIN new_pets ON p.id = new_pets.id WHERE person.id = new_pets.id;'
+    postgres: 'CREATE TEMP TABLE t AS SELECT id, jsonb_array_elements(data -> ''pets'') AS pets FROM person WHERE data @@ ''$.pets[*].age > 14''; UPDATE t SET pets = jsonb_set(pets, ''{age}'', ((pets -> ''age'')::int + 1)::text::jsonb) WHERE pets @@ ''$.age > 14''; with new_pets AS (SELECT id, jsonb_agg(pets) AS pets FROM t GROUP BY(id)) UPDATE person SET data = jsonb_set(person.data, ''{pets}'', new_pets.pets) FROM person p INNER JOIN new_pets ON p.id = new_pets.id WHERE person.id = new_pets.id; DROP TABLE t;'
     mongo:
       collection: person
       method: update_many
