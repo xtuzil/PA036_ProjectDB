@@ -89,3 +89,18 @@ class MongoDB:
         # print("Mongo result:", result)
 
         return end - start
+
+    def create_indexes(self, indexes_dict):
+        for key in indexes_dict:
+            for index_path in indexes_dict[key]:
+                self.get_col(key).create_index(index_path)
+
+    def drop_indexes(self):
+        self.person_col.drop_indexes()
+        self.speed_violation_col.drop_indexes()
+        
+    def delete_entries(self):
+        self.mongo_db["person"].drop()
+        self.mongo_db["speed_violation"].drop()
+        self.person_col = self.mongo_db["person"]
+        self.speed_violation_col = self.mongo_db["speed_violation"]

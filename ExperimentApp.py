@@ -15,6 +15,10 @@ class ExperimentApp:
         self.mongo = MongoDB()
 
     def run(self):
+
+        mongo_indexes = {"person": ["age", "cars.license_plate", "Address.state", "Address.city"],
+        "speed_violation": ["actual_speed", "license_plate"] }
+
         psql_index_text = {
             "": "PostgreSQL binary json",
             "jsonb_ops": "PostgreSQL with index ",
@@ -33,14 +37,18 @@ class ExperimentApp:
                 "columns": {},
             })["columns"].setdefault(inner_name, [])
         
-        def run_mongo():
+        def load_mongo(mongo_indexes):
             time_person_m, time_speed_violation_m = self.mongo.load_data()
             print("MongoDB: Loading time for person table is: ", time_person_m)
             print("MongoDB: Loading time for speed_violation table is: ", time_speed_violation_m)
+
+            default_result("Data loading person",f"MongoDB{' with index' if any(mongo_indexes) else ''}").append(time_person_m)
+            default_result("Data loading speed_violation", f"MongoDB{' with index' if any(mongo_indexes) else ''}").append(time_speed_violation_m)
             
-            default_result("Data loading person", "MongoDB").append(time_person_m)
-            default_result("Data loading speed_violation", "MongoDB").append(time_speed_violation_m)
-            
+            # default_result("Data loading person", f"MongoDB with indexes: { mongo_indexes['person'] }" if "person" in mongo_indexes else "MongoDB").append(time_person_m)
+            # default_result("Data loading speed_violation", f"MongoDB with indexes: {mongo_indexes['speed_violation']}" if "speed_violation" in mongo_indexes else "MongoDB" ).append(time_speed_violation_m)
+
+        def run_mongo(mongo_indexes):  
             for query in queries["queries"]:
                 query_id = query["id"]
                 desc = query["description"]
@@ -50,7 +58,7 @@ class ExperimentApp:
 
                 print("Mongo time:", mongo_time)
                 
-                default_result(str(query_id), "MongoDB", desc).append(mongo_time)
+                default_result(str(query_id), f"MongoDB{' with index' if any(mongo_indexes) else ''}", desc).append(mongo_time)
         
         def load_postgres(psql_index):
             time_person_p, time_speed_violation_p, time_person2_p = self.postgres.load_data()
@@ -75,16 +83,27 @@ class ExperimentApp:
                 # dicitonary `columns`
                 default_result(str(query_id), psql_index_text[psql_index] + psql_index, desc).append(postgres_time)
         
-        #run_mongo()
-        
-        # Postgres
+            
         for i in range(10):
             results_json = {}
-        
             if os.path.isfile("results.json"):
                 with open("results.json", "r") as result_file:
                     results_json = json.load(result_file)
-                    
+
+            #Mongo
+            load_mongo({})
+            run_mongo({})
+            self.mongo.delete_entries()
+            
+            self.mongo.create_indexes(mongo_indexes)
+            load_mongo(mongo_indexes)
+            self.mongo.drop_indexes()
+            self.mongo.create_indexes(mongo_indexes)
+            run_mongo(mongo_indexes)
+            self.mongo.delete_entries()
+
+
+            # Postgres
             load_postgres("")
             run_postgres("")
             self.postgres.delete_entries()
@@ -105,5 +124,6 @@ class ExperimentApp:
             self.postgres.drop_index("jsonb_path_ops")
             self.postgres.delete_entries()
             
+
             with open("results.json", "w") as result_file:
                 json.dump(results_json, result_file, indent = 2)

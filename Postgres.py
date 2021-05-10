@@ -74,11 +74,12 @@ class PostgresDB:
         with open('Data/personData.json') as person_data:
             person_list = json.load(person_data)
 
-        sql_string_person = 'INSERT INTO person (data) VALUES '
-
+        sql_string_person_list = ['INSERT INTO person (data) VALUES ']
         for record in person_list:
             person = json.dumps(record)
-            sql_string_person += f"('{person}'::jsonb),"
+            sql_string_person_list.append(f"('{person}'::jsonb),")
+
+        sql_string_person = ''.join(sql_string_person_list)
 
         # remove the last comma and end statement with a semicolon
         sql_string_person = sql_string_person[:-1] + ";"
@@ -87,11 +88,12 @@ class PostgresDB:
         with open('Data/speedViolationData.json') as speed_violation_data:
             speed_violation_list = json.load(speed_violation_data)
 
-        sql_string_speed_violation = 'INSERT INTO speed_violation (data) VALUES '
-
+        sql_string_speed_violation_list = ['INSERT INTO speed_violation (data) VALUES ']
         for record in speed_violation_list:
             speed_violation = json.dumps(record)
-            sql_string_speed_violation += f"('{speed_violation}'::jsonb),"
+            sql_string_speed_violation_list.append(f"('{speed_violation}'::jsonb),")
+
+        sql_string_speed_violation = ''.join(sql_string_speed_violation_list)
 
         # remove the last comma and end statement with a semicolon
         sql_string_speed_violation = sql_string_speed_violation[:-1] + ";"
