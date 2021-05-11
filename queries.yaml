@@ -535,7 +535,7 @@
   - id: 50
     description: "array query: people from Nevada who own at least one elephant older then 10 "
     fetch: true
-    #postgres: DELETE FROM person WHERE (data -> 'age')::int = 26;
+    postgres: select * from person where data @@ '$.Address.state == "Nevada"' and data @? '$.pets[*] ? (@.age > 10 && @.species == "elephant")';
     mongo:
       collection: person
       method: find
