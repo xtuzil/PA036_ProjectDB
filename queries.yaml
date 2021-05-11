@@ -245,11 +245,10 @@
       filter: '{ }'
 
 #23- jednodychy select s agregaciou array_agg
-  # TODO: nic mi to nevypsalo v psql - NEROBI TO A NEBUDE CO TO MALO ROBIT, ZMAZALA BY SOM TO
   - id: 23
     description: "Put names of all people concatenated into an array with ARRAY_AGG"
     fetch: true
-    postgres: 'SELECT ARRAY_AGG(data->''name'') from person;'
+    postgres: 'SELECT json_agg(data->''name'') from person;'
     mongo:
       collection: person
       method: aggregate
