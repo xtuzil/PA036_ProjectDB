@@ -30,7 +30,7 @@ def normalize(description, names):
         for column_name, column_values in results[name]["columns"].items():
             new_column = columns.setdefault(column_name, [])
             for value in column_values:
-                new_column.append(value / maximum)
+                new_column.append(value / maximum if maximum != 0 else value)
     return result
 
 def preprocess(results):
