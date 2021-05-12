@@ -8,7 +8,7 @@ def main():
     # possibly to run repeatedly in loop
     for i in range(5):
         time.sleep(5)
-        experiment_app.run(rounds_number=3)
+        experiment_app.run()
 
 
 if __name__ == '__main__':
