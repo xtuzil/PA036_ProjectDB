@@ -10,58 +10,55 @@
   #  projection
   #  arrayFilters
 
-#1- select s jednoduchou podmienkou na toplevel atribute s agregaciou count
+
+#(S) SELECT SECTION
+
+#S1- cisty select bez akychkolvek podmienok (BEFORE #21)
   - id: 1
-    description: "Count people with age more than 40"
+    description: "Select all from speed_violation"
     fetch: true
-    postgres: SELECT COUNT(*) FROM person WHERE (data->>'age')::int > 40;
+    postgres: 'select * from speed_violation;'
     mongo:
-      collection: person
-      method: count
-      filter: '{ "age" : { "$gt" : 40 } }'
+      collection: speed_violation
+      method: find
+      filter: '{ }'
 
-#2- select s jednoduchou podmienkou na toplevel atribute
+#S2- jednoduchy select na toplevel atribute (BEFORE #24)
   - id: 2
-    description: "Select people with age more than 40"
+    description: "Select all from person table"
     fetch: true
-    postgres: SELECT * FROM person WHERE (data->>'age')::int > 40;
+    postgres: 'SELECT (data->>''age'') FROM person;'
     mongo:
       collection: person
       method: find
-      filter: '{ "age" : { "$gt" : 40 } }'
+      projection: '{"age":1, "_id":0}'
+      filter: '{ }'
 
-#3- select s jednoduchou podmienkou na toplevel atribute s pouzitim containment funkcie
+#S3- jednoduchy select  na toplevel array atribute (vysledky v poliach podla zaznamov) (BEFORE #26)
   - id: 3
-    description: "Select people with age 40 (with containment function)"
+    description: "Select contacts from all people"
     fetch: true
-    postgres: 'SELECT * from person where (data @> ''{"age": 40}'')::boolean = true;'
+    postgres: select (data->>'contacts') from person;
     mongo:
       collection: person
       method: find
-    filter: '{ "age" : 40 }'
-    
-#4- select s jednoduchou podmienkou na toplevel array atribute
+      projection: '{"contacts":1, "_id":0}'
+      filter: '{ }'
+
+#S4- jednoduchy select  na toplevel array atribute (vysledky po jednom v tabulke) (BEFORE #28)
+  #TODO MONGO ZMAZAT DISTINCT
   - id: 4
-    description: "Select people with contact like '539-206' (top level atribut contacts)"
+    description: "Select contacts from all people"
     fetch: true
-    postgres: select * from person where (data->>'contacts') like '%539-206%';
+    postgres: select jsonb_array_elements(data->'contacts') from person;
     mongo:
       collection: person
-      method: find
-      filter: '{ "contacts" : {"$regex": "539-206" } }'
+      method: distinct
+      distinct: 'contacts'
 
-#5- select s jednoduchou podmienkou na toplevel array atribute s pouzitim existence funkcie
+#S5- Zanoreny select v poli cars (BEFORE #6)
+  #TODO MONGO ZMAZAT DISTINCT
   - id: 5
-    description: "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)"
-    fetch: true
-    postgres: select * from person where (data->'contacts')::jsonb ? '+1 (966) 429-3818';
-    mongo:
-      collection: person
-      method: find
-      filter: '{ "contacts" : "+1 (966) 429-3818" }'
-
-#6- Zanoreny select v poli cars
-  - id: 6
     description: "Select all license plates of all cars"
     fetch: true
     postgres: select jsonb_array_elements(data -> 'cars') -> 'license_plate' from person;
@@ -70,8 +67,8 @@
       method: distinct
       distinct: 'cars.license_plate'
 
- #7- Viac zanoreny select v poli cars cez pole tech_exams k polu defects
-  - id: 7
+#S6- Viac zanoreny select v poli cars cez pole tech_exams k polu defects (BEFORE #7)
+  - id: 6
     description: "Select all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)"
     fetch: true
     postgres: select jsonb_array_elements(jsonb_array_elements(jsonb_array_elements(data -> 'cars') -> 'tech_exams') -> 'defects') from person;
@@ -81,8 +78,104 @@
       filter: '[{"$unwind":"$cars"},{"$unwind":"$cars.tech_exams"},{"$unwind":"$cars.tech_exams.defects"},{"$project":{"d":"$cars.tech_exams.defects","_id":0}}]'
       #filter: '[{"$addFields":{"defects":{"$reduce":{"input":"$cars.tech_exams","initialValue":[],"in":{"$concatArrays":["$$value",{"$map":{"input":"$$this.defects","as":"dfcts","in":{"dfct":"$$dfcts"}}}]}}}}},{"$unwind":"$defects"},{"$project":{"d":"$defects.dfct", "_id":0}},{"$unwind" :"$d"}]'
 
-#8- Zlozity select z person s joinom na speed_violation
+
+
+
+#(Swc) SELECT WITH CONDITION SECTION
+
+#SwC1- select s jednoduchou podmienkou na toplevel atribute (BEFORE #2)
+  - id: 7
+    description: "Select people with age more than 40"
+    fetch: true
+    postgres: SELECT * FROM person WHERE (data->>'age')::int > 40;
+    mongo:
+      collection: person
+      method: find
+      filter: '{ "age" : { "$gt" : 40 } }'
+
+#SwC2- select s jednoduchou podmienkou na toplevel atribute s pouzitim containment funkcie (BEFORE #3)
   - id: 8
+    description: "Select people with age 40 (with containment function)"
+    fetch: true
+    postgres: 'SELECT * from person where (data @> ''{"age": 40}'')::boolean = true;'
+    mongo:
+      collection: person
+      method: find
+    filter: '{ "age" : 40 }'
+
+#SwC3- select s jednoduchou podmienkou na toplevel array atribute (BEFORE #4)
+  - id: 9
+    description: "Select people with contact like '539-206' (top level atribut contacts)"
+    fetch: true
+    postgres: select * from person where (data->>'contacts') like '%539-206%';
+    mongo:
+      collection: person
+      method: find
+      filter: '{ "contacts" : {"$regex": "539-206" } }'
+
+#SwC4- select s jednoduchou podmienkou na toplevel array atribute s pouzitim existence funkcie (BEFORE #5)
+  - id: 10
+    description: "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)"
+    fetch: true
+    postgres: select * from person where (data->'contacts')::jsonb ? '+1 (966) 429-3818';
+    mongo:
+      collection: person
+      method: find
+      filter: '{ "contacts" : "+1 (966) 429-3818" }'
+
+#SwC5- select so zanorenou podmienkou 1. sposob (BEFORE #29)
+  - id: 11
+    description: "Select person who owns car with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
+    fetch: true
+    postgres: 'select * from person where ((data -> ''cars'') @> ''[{"license_plate": "1d642205-dc4e-4051-b653-bc0f6b768072"}]'')::boolean = true;'
+    mongo:
+      collection: person
+      method: find
+      filter: '{"cars.license_plate": "1d642205-dc4e-4051-b653-bc0f6b768072"}'
+
+#SwC6 - select so zanorenou podmienkou 2. sposob (BEFORE #31)
+  - id: 12
+    description: "Select all records in person with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
+    fetch: true
+    postgres: select * from person where data @@ '$.cars[*].license_plate == "1d642205-dc4e-4051-b653-bc0f6b768072"';
+    # mongo: STEJNE JAKO 29
+
+#SwC7 - select s viac zanorenou podmienkou vyhladavania (BEFORE #32)
+  - id: 13
+    description: "Select all where date on tech_exam is 18/06/2015"
+    fetch: true
+    postgres: 'select * from person where data @@ ''$.cars[*].tech_exams[*].date == "18/06/2015"'';'
+    mongo:
+      collection: person
+      method: find
+      filter: '{"cars.tech_exams.date": "18/06/2015"}'
+
+#SwC8 array query 1 (BEFORE #50)
+  - id: 14
+    description: "array query: people from Nevada who own at least one elephant older then 10 "
+    fetch: true
+    postgres: select * from person where data @@ '$.Address.state == "Nevada"' and data @? '$.pets[*] ? (@.age > 10 && @.species == "elephant")';
+    mongo:
+      collection: person
+      method: find
+      filter: '{"$and":  [{"Address.state":"Nevada"},  {"pets": { "$elemMatch": {"$and": [{"species":"elephant"},{"age":{"$gt":10}}]}}}]}'
+
+#SwC9 array query 2 (BEFORE #51)
+  - id: 15
+    description: "array query: people who own exactly 1 car and 2 pets"
+    fetch: true
+    postgres: select t.id, t.data from (select *, jsonb_array_length(data -> 'cars') as car_count, jsonb_array_length(data -> 'pets') as pets_count from person) as t where t.car_count = 1 and t.pets_count = 2;
+    mongo:
+      collection: person
+      method: find
+      filter: '{"$and": [{"cars":{"$size":  1 }}, {"pets": {"$size" :2}}]}'
+
+
+
+#(J) JOIN SECTION
+
+#J1- Zlozity select z person s joinom na speed_violation (BEFORE #8)
+  - id: 16
     description: "Select name of person, age of person, license plate of person with record, date of speed violation, speed limit and actual speed of every speed violation record with actual speed higher than 199"
     fetch: true
     postgres: 'select t.name, t.age, t.license_plate, (speed_violation.data->>''date'') as date, (speed_violation.data->>''speed_limit'') as speed_limit, (speed_violation.data->>''actual_speed'') as actual_speed from (select person.data ->> ''name'' as name, person.data ->> ''age'' as age, jsonb_array_elements(person.data -> ''cars'') -> ''license_plate'' as license_plate from person) as t inner join speed_violation on license_plate = speed_violation.data -> ''license_plate'' where (speed_violation.data -> ''actual_speed'')::int > 199;'
@@ -95,58 +188,12 @@
       #filter: '[{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "person", "localField": "license_plate", "foreignField": "cars.license_plate", "as": "join"}}, {"$project":{"name":"$join.name"}} ]'
 
 
-   #9- jednoduchy select na toplevel atribute s agregaciou average
-  - id: 9
-    description: "Select average age of all people"
-    fetch: true
-    postgres: 'SELECT AVG((data->''age'')::int) FROM person;'
-    mongo: 
-      collection: person
-      method: aggregate
-      filter: '[{"$group":{"_id": null,"avg": { "$avg": "$age" }}}]'
 
-#10- jednoduchy select na toplevel atribute s agregaciou maximum
-  - id: 10
-    description: "Select maximum age from all people"
-    fetch: true
-    postgres: 'SELECT MAX((data->''age'')::int) FROM person;'
-    mongo: 
-      collection: person
-      method: aggregate
-      filter: '[{"$group":{"_id": null,"max": { "$max": "$age" }}}]'
 
-#11- jednoduchy select na toplevel atribute s agregaciou minimum
-  - id: 11
-    description: "Select minimum age from all people"
-    fetch: true
-    postgres: 'SELECT MIN((data->''age'')::int) FROM person;'
-    mongo: 
-      collection: person
-      method: aggregate
-      filter: '[{"$group":{"_id": null,"min": { "$min": "$age" }}}]'
+#(A) AGGREGATE SECTION
 
-#12- jednoduchy select na toplevel atribute s agregaciou sum
-  - id: 12
-    description: "Select sum of age of all people (should be 2943583)"
-    fetch: true
-    postgres: 'SELECT SUM((data->''age'')::int) FROM person;'
-    mongo: 
-      collection: person
-      method: aggregate
-      filter: '[{"$group":{"_id": null,"sum": { "$sum": "$age" }}}]'
-
-#13- podmieneny select s agregaciou array_agg
-  - id: 13
-    description: "Put names of all people with age 18 concatenated into an array with ARRAY_AGG"
-    fetch: true
-    postgres: 'SELECT ARRAY_AGG(data->''name'') from person where (data->''age'')::int = 18;'
-    mongo:
-      collection: person
-      method: aggregate
-      filter: '[{ "$match": { "age": { "$eq": 18}}},{"$group": { "_id": "_id", "namesArr": { "$push": "$name" }}}]'
-
-#14- cisty count bez podmienok
-  - id: 14
+#A1- cisty count bez podmienok (BEFORE #14)
+  - id: 17
     description: "Count all from person table"
     fetch: true
     postgres: 'SELECT COUNT(*) FROM person;'
@@ -155,8 +202,98 @@
       method: count
       filter: '{ }'
 
-#15- count na query #3
-  - id: 15
+#A2- jednoduchy select na toplevel atribute s agregaciou average (BEFORE #9)
+  - id: 18
+    description: "Select average age of all people"
+    fetch: true
+    postgres: 'SELECT AVG((data->''age'')::int) FROM person;'
+    mongo:
+      collection: person
+      method: aggregate
+      filter: '[{"$group":{"_id": null,"avg": { "$avg": "$age" }}}]'
+
+#A3- jednoduchy select na toplevel atribute s agregaciou maximum (BEFORE #10)
+  - id: 19
+    description: "Select maximum age from all people"
+    fetch: true
+    postgres: 'SELECT MAX((data->''age'')::int) FROM person;'
+    mongo:
+      collection: person
+      method: aggregate
+      filter: '[{"$group":{"_id": null,"max": { "$max": "$age" }}}]'
+
+#A4- jednoduchy select na toplevel atribute s agregaciou minimum (BEFORE #11)
+  - id: 20
+    description: "Select minimum age from all people"
+    fetch: true
+    postgres: 'SELECT MIN((data->''age'')::int) FROM person;'
+    mongo:
+      collection: person
+      method: aggregate
+      filter: '[{"$group":{"_id": null,"min": { "$min": "$age" }}}]'
+
+#A5- jednoduchy select na toplevel atribute s agregaciou sum (BEFORE #12)
+  - id: 21
+    description: "Select sum of age of all people (should be 2943583)"
+    fetch: true
+    postgres: 'SELECT SUM((data->''age'')::int) FROM person;'
+    mongo:
+      collection: person
+      method: aggregate
+      filter: '[{"$group":{"_id": null,"sum": { "$sum": "$age" }}}]'
+
+#A6- jednodychy select s agregaciou array_agg (BEFORE #23)
+  - id: 22
+    description: "Put names of all people concatenated into an array with ARRAY_AGG"
+    fetch: true
+    postgres: 'SELECT json_agg(data->''name'') from person;'
+    mongo:
+      collection: person
+      method: aggregate
+      filter: '[{"$group": { "_id": "_id", "namesArr": { "$push": "$name" }}}]'
+
+#A7- Agregace - prumer (v postgres aplikovany na jsonb funkciu) (BEFORE #30)
+  - id: 23
+    description: "Get average of owned cars per person "
+    fetch: true
+    postgres: SELECT AVG(jsonb_array_length(data->'cars')) from person;
+    mongo:
+      collection: person
+      method: aggregate
+      filter: '[{"$group": {"_id":null, "cars_avg": {"$avg": {"$size":"$cars"} } } }]'
+
+
+
+
+#(SwCaA) SELECT WITH CONDITION AND AGGREGATE SECTION
+
+#SwCaA1- select s jednoduchou podmienkou na toplevel atribute s agregaciou count (BEFORE #1)
+  - id: 24
+    description: "Count people with age more than 40"
+    fetch: true
+    postgres: SELECT COUNT(*) FROM person WHERE (data->>'age')::int > 40;
+    mongo:
+      collection: person
+      method: count
+      filter: '{ "age" : { "$gt" : 40 } }'
+
+#SwCaA2- podmieneny select s agregaciou array_agg (BEFORE #13)
+  - id: 25
+    description: "Put names of all people with age 18 concatenated into an array with ARRAY_AGG"
+    fetch: true
+    postgres: 'SELECT ARRAY_AGG(data->''name'') from person where (data->''age'')::int = 18;'
+    mongo:
+      collection: person
+      method: aggregate
+      filter: '[{ "$match": { "age": { "$eq": 18}}},{"$group": { "_id": "_id", "namesArr": { "$push": "$name" }}}]'
+
+
+
+
+#(CoQ) COUNT ON QUERY SECTION
+
+#CoQ1- count na query #3 (BEFORE #15)
+  - id: 26
     description: "Select count of people with age 40 (with containment function)"
     fetch: true
     postgres: 'SELECT COUNT(*) from person where (data @> ''{"age": 40}'')::boolean = true;'
@@ -165,8 +302,8 @@
       method: count
       filter: '{ "age": 40 }'
 
-#16- count na query #4
-  - id: 16
+#CoQ2- count na query #4 (BEFORE #16)
+  - id: 27
     description: "Select count of people with contact like '539-206' (top level atribut contacts)"
     fetch: true
     postgres: 'select count(*) from person where (data->>''contacts'') like ''%539-206%'';'
@@ -175,8 +312,8 @@
       method: count
       filter: '{ "contacts" : {"$regex": "539-206"} }'
 
-#17- count na query #5
-  - id: 17
+#CoQ3- count na query #5 (BEFORE #17)
+  - id: 28
     description: "Select count of people with contact '+1 (966) 429-3818' (top level atribut contacts)"
     fetch: true
     postgres: 'select count(*) from person where (data->''contacts'')::jsonb ? ''+1 (966) 429-3818'';'
@@ -185,8 +322,8 @@
       method: count
       filter: '{ "contacts" : "+1 (966) 429-3818" }'
 
-#18- count na query #6
-  - id: 18
+#CoQ4- count na query #6 (BEFORE #18)
+  - id: 29
     description: "Select count of all license plates of all cars"
     fetch: true
     postgres: 'select count(*) from (select jsonb_array_elements(data -> ''cars'') -> ''license_plate'' from person) as t;'
@@ -195,8 +332,8 @@
       method: aggregate
       filter: '[ {"$project": {"_id":0,"arraySize":{"$size":"$cars"}}},{"$group": {"_id":null,"totalArraysSize":{"$sum":"$arraySize"}}}]'
 
-#19- count na query #7
-  - id: 19
+#CoQ5- count na query #7 (BEFORE #19)
+  - id: 30
     description: "Select count of all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)"
     fetch: true
     postgres: 'select count(*) from (select jsonb_array_elements(jsonb_array_elements(jsonb_array_elements(data -> ''cars'') -> ''tech_exams'') -> ''defects'') from person) as t;'
@@ -206,34 +343,8 @@
       filter: '[ {"$unwind":"$cars"},{"$unwind": "$cars.tech_exams"},{"$group":{"_id": null,"sum": { "$sum": {"$size": "$cars.tech_exams.defects"}}}}]'
       #filter: '[{"$unwind":"$cars"},{"$unwind": "$cars.tech_exams"},{"$project": {"_id":0,"arraySize":{"$size" : "$cars.tech_exams.defects"}}}, {"$group":{"_id": null,"sum": { "$sum": "$arraySize" }}}]'
 
-# TODO ZMAZAT
-#20- count na query #8
-  - id: 20
-    description: "Select count of name of person, age of person, license plate of person with record, date of speed violation, speed limit and actual speed of every speed violation record with actual speed higher than 100 (should be 80877 rows)"
-    #fetch: true
-    #postgres: 'select count(*) from (select t.name, t.age, t.license_plate, (speed_violation.data->>''date'') as date, (speed_violation.data->>''speed_limit'') as speed_limit, (speed_violation.data->>''actual_speed'') as actual_speed from (select person.data ->> ''name'' as name, person.data ->> ''age'' as age, jsonb_array_elements(person.data -> ''cars'') -> ''license_plate'' as license_plate from person) as t inner join speed_violation on license_plate = speed_violation.data -> ''license_plate'' where (speed_violation.data -> ''actual_speed'')::int > 100) as k;'
-    #mongo:
-    #  descriptionMongo: "Select names of all people who drove with speed 200"
-    #  collection: speed_violation
-    #  method: count
-    #  filter: '{ "actual_speed" : {"$gt":  100 }}'
-#       #filter: '[{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "person", "localField": "license_plate", "foreignField": "cars.license_plate", "as": "join"}}, {"$count":"count"} ]'
-#       #filter: [{"$lookup":{"from": "speed_violation", "localField": "cars.license_plate", "foreignField": "license_plate", "as": "join"}}, {"$project":{"name": 1, "join.actual_speed":1}} ]
-#       #filte3r: [{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "speed_violation", "let": { "license_plate": "$license_plate"},"pipeline": [{ "$match":{ "$expr":{ "$eq": [ "$license_plate",  "$cars.license_plate" ]}}}], "as": "join"}}, {"$project":{"actual_speed": 1, "join":1}} ]
-
-
-#21- cisty select bez akychkolvek podmienok
-  - id: 21
-    description: "Select all from speed_violation"
-    fetch: true
-    postgres: 'select * from speed_violation;'
-    mongo:
-      collection: speed_violation
-      method: find
-      filter: '{ }' 
-
-#22- count na query #21
-  - id: 22
+#CoQ6- count na query #21 (BEFORE #22)
+  - id: 31
     description: "Select count of all from speed_violation"
     fetch: true
     postgres: 'select count(*) from speed_violation;'
@@ -242,29 +353,8 @@
       method: count
       filter: '{ }'
 
-#23- jednodychy select s agregaciou array_agg
-  - id: 23
-    description: "Put names of all people concatenated into an array with ARRAY_AGG"
-    fetch: true
-    postgres: 'SELECT json_agg(data->''name'') from person;'
-    mongo:
-      collection: person
-      method: aggregate
-      filter: '[{"$group": { "_id": "_id", "namesArr": { "$push": "$name" }}}]'
-
-#24- jednoduchy select na toplevel atribute
-  - id: 24
-    description: "Select all from person table"
-    fetch: true
-    postgres: 'SELECT (data->>''age'') FROM person;'
-    mongo:
-      collection: person
-      method: find
-      projection: '{"age":1, "_id":0}'
-      filter: '{ }'
-
-#25- count na query #24
-  - id: 25
+#CoQ7- count na query #24 (BEFORE #25)
+  - id: 32
     description: "Count all from person table"
     fetch: true
     postgres: 'SELECT COUNT(data->>''age'') FROM person;'
@@ -273,19 +363,8 @@
       method: count
       filter: '{}'
 
-#26- jednoduchy select  na toplevel array atribute (vysledky v poliach podla zaznamov)
-  - id: 26
-    description: "Select contacts from all people"
-    fetch: true
-    postgres: select (data->>'contacts') from person;
-    mongo:
-      collection: person
-      method: find
-      projection: '{"contacts":1, "_id":0}'
-      filter: '{ }'
-
-#27- count na query #26
-  - id: 27
+#CoQ8- count na query #26 (BEFORE #27)
+  - id: 33
     description: "Count contacts from all people"
     fetch: true
     postgres: select sum(t.contact_count) from (select jsonb_array_length(data->'contacts') as contact_count from person) as t;
@@ -294,56 +373,13 @@
       method: aggregate
       filter: '[ {"$project": {"_id":0,"arraySize":{"$size":"$contacts"}}},{"$group": {"_id":null,"totalArraysSize":{"$sum":"$arraySize"}}}]'
 
-#28- jednoduchy select  na toplevel array atribute (vysledky po jednom v tabulke)
-  #TODO MONGO ZMAZAT DISTINCT
-  - id: 28
-    description: "Select contacts from all people"
-    fetch: true
-    postgres: select jsonb_array_elements(data->'contacts') from person;
-    mongo:
-      collection: person
-      method: distinct
-      distinct: 'contacts'
 
-#29- select so zanorenou podmienkou 1. sposob
-  - id: 29
-    description: "Select person who owns car with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
-    fetch: true
-    postgres: 'select * from person where ((data -> ''cars'') @> ''[{"license_plate": "1d642205-dc4e-4051-b653-bc0f6b768072"}]'')::boolean = true;'
-    mongo:
-      collection: person
-      method: find
-      filter: '{"cars.license_plate": "1d642205-dc4e-4051-b653-bc0f6b768072"}'
 
-#30- Agregace - prumer (v postgres aplikovany na jsonb funkciu)
-  - id: 30
-    description: "Get average of owned cars per person "
-    fetch: true
-    postgres: SELECT AVG(jsonb_array_length(data->'cars')) from person;
-    mongo:
-      collection: person
-      method: aggregate
-      filter: '[{"$group": {"_id":null, "cars_avg": {"$avg": {"$size":"$cars"} } } }]'
 
-#31 - select so zanorenou podmienkou 2. sposob
-  - id: 31
-    description: "Select all records in person with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
-    fetch: true
-    postgres: select * from person where data @@ '$.cars[*].license_plate == "1d642205-dc4e-4051-b653-bc0f6b768072"';
-    # mongo: STEJNE JAKO 29
+#(I) INSERT SECTION
 
-#32 - select s viac zanorenou podmienkou vyhladavania
-  - id: 32
-    description: "Select all where date on tech_exam is 18/06/2015"
-    fetch: true
-    postgres: 'select * from person where data @@ ''$.cars[*].tech_exams[*].date == "18/06/2015"'';'
-    mongo:
-      collection: person
-      method: find
-      filter: '{"cars.tech_exams.date": "18/06/2015"}'
-
-#33- vlozenie jedneho zaznamu
-  - id: 33
+#I1- vlozenie jedneho zaznamu (BEFORE #33)
+  - id: 34
     description: "Insert one record into person"
     fetch: false
     postgres: 'INSERT INTO person (data) VALUES(''{"name":"Katherine Hewitt","age":54,"Address":{"street":"Congress Street","postcode":"486 18","city":"Twilight","state":"Pennsylvania"},"contacts":["+1 (808) 402-2645","+1 (897) 558-3084","+1 (852) 491-3646","+1 (921) 470-3415","+1 (861) 588-3466","+1 (967) 593-3615","+1 (858) 544-2339","+1 (989) 543-3403","+1 (853) 402-3725","+1 (958) 594-2307","+1 (912) 499-3326","+1 (993) 423-3343","+1 (979) 594-3001"],"cars":[],"pets":[{"name":"Weeks","species":"lion","age":14}]}'');'
@@ -352,8 +388,14 @@
       method: insert_one
       value: '{"name":"Katherine Hewitt","age":54,"Address":{"street":"Congress Street","postcode":"486 18","city":"Twilight","state":"Pennsylvania"},"contacts":["+1 (808) 402-2645","+1 (897) 558-3084","+1 (852) 491-3646","+1 (921) 470-3415","+1 (861) 588-3466","+1 (967) 593-3615","+1 (858) 544-2339","+1 (989) 543-3403","+1 (853) 402-3725","+1 (958) 594-2307","+1 (912) 499-3326","+1 (993) 423-3343","+1 (979) 594-3001"],"cars":[],"pets":[{"name":"Weeks","species":"lion","age":14}]}'
 
-#34- update toplevel atribut
-  - id: 34
+
+
+
+
+#(U) UPDATE SECTION
+
+#U1- update toplevel atribut (BEFORE #34)
+  - id: 35
     description: "Update name of person with id 12 to Meyers Parks Junior"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{name}', '"Meyers Parks Junior"', false) WHERE id = 12;
@@ -363,9 +405,8 @@
       filter: '{ "_id": 12 }'
       value:  '{"$set": {"name": "Meyers Parks Junior"}}'
 
-
-#35- update v array
-  - id: 35
+#U2- update v array (BEFORE #35)
+  - id: 36
     description: "Update first contact of person with id 12 to +1 (666) 471-3603 (add when non exist)"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{contacts, 0}', '"+1 (666) 471-3603"', true) WHERE id = 12;
@@ -375,9 +416,8 @@
       filter: '{ "_id": 12 }'
       value: '{"$set": {"contacts.0": "+1 (666) 471-3603"}}'
 
-
-#36- nested update atribut v array
-  - id: 36
+#U3- nested update atribut v array (BEFORE #36)
+  - id: 37
     description: "Update name of first pet of person with id 12 to Dr. Craig"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{pets, 0, name}', '"Dr. Craig"', true) WHERE id = 12;
@@ -387,8 +427,8 @@
       filter: '{ "_id": 12 }'
       value: '{"$set": {"pets.0.name": "Dr. Craig"}}'
 
-#37- more nested update of all - atribut v nested array
-  - id: 37
+#U4- more nested update of all - atribut v nested array (BEFORE #37)
+  - id: 38
     description: "Increment age by 1 to all pets which are older than 14 years"
     fetch: false
     postgres: 'CREATE TEMP TABLE t AS SELECT id, jsonb_array_elements(data -> ''pets'') AS pets FROM person WHERE data @@ ''$.pets[*].age > 14''; UPDATE t SET pets = jsonb_set(pets, ''{age}'', ((pets -> ''age'')::int + 1)::text::jsonb) WHERE pets @@ ''$.age > 14''; with new_pets AS (SELECT id, jsonb_agg(pets) AS pets FROM t GROUP BY(id)) UPDATE person SET data = jsonb_set(person.data, ''{pets}'', new_pets.pets) FROM person p INNER JOIN new_pets ON p.id = new_pets.id WHERE person.id = new_pets.id; DROP TABLE t;'
@@ -399,8 +439,8 @@
       value: '{ "$inc": { "pets.$[elem].age": 1 } }'
       arrayFilters: '[ { "elem.age": { "$gt" : 14 } } ]'
 
-#38- update toplevel atribut for multiple records
-  - id: 38
+#U5- update toplevel atribut for multiple records (BEFORE #38)
+  - id: 39
     description: "Update age of person to 84 when he/she has 85"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{age}', '84', false) WHERE (data -> 'age')::int =85;
@@ -410,8 +450,8 @@
       filter: '{ "age": { "$eq" : 85 } }'
       value: '{ "$set": {"age": 84 } }'
 
-#39- update v array multiple records
-  - id: 39
+#U6- update v array multiple records (BEFORE #39)
+  - id: 40
     description: "Update (add when non exist) first contact to +1 (666) 666-6666 for everyone with age 18"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{contacts, 0}', '"+1 (666) 666-6666"', true) WHERE (data -> 'age')::int = 18;
@@ -421,8 +461,8 @@
       filter: '{ "age": { "$eq" : 18 } }'
       value: '{"$set": {"contacts.0": "+1 (666) 666-6666"}}'
 
-#40- nested update atribut v array multiple records
-  - id: 40
+#U7- nested update atribut v array multiple records (BEFORE #40)
+  - id: 41
     description: "Update species of pets for all from horse to pony"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{pets, 0, species}', '"pony"', true) WHERE data @@ '$.pets[*].species == "horse"';
@@ -433,8 +473,14 @@
       value: '{"$set": {"pets.$[elem].species": "pony"} }'
       arrayFilters: '[ { "elem.species": { "$eq" : "horse" } } ]'
 
-#41- delete toplevel atribute -one record (complicated, need to have specific jsonb you want to "update")
-  - id: 41
+
+
+
+
+#(D) DELETE SECTION
+
+#D1- delete toplevel atribute -one record (complicated, need to have specific jsonb you want to "update") (BEFORE #41)
+  - id: 42
     description: "Delete age from record with id 12"
     fetch: false
     postgres: 'UPDATE person SET data = (SELECT jsonb ''{"age": 55, "cars": [], "name": "Meyers Parks", "pets": [{"age": 6, "name": "Craig", "species": "horse"}, {"age": 7, "name": "Eddie", "species": "mouse"}, {"age": 8, "name": "Hollie", "species": "rabbit"}, {"age": 4, "name": "Allen", "species": "rabbit"}, {"age": 14, "name": "Malone", "species": "horse"}], "Address": {"city": "Lindisfarne", "state": "Delaware", "street": "Whitney Avenue", "postcode": "946 88"}, "contacts": ["+1 (967) 471-3603", "+1 (814) 492-2778", "+1 (998) 597-3090", "+1 (811) 438-3879", "+1 (809) 453-3951", "+1 (910) 534-3344", "+1 (838) 496-3026", "+1 (997) 413-3537", "+1 (981) 551-3583", "+1 (821) 463-3727", "+1 (938) 466-2232", "+1 (952) 424-3443", "+1 (967) 447-3044", "+1 (999) 421-2239", "+1 (876) 518-2046"]}'' - ''age'' FROM person WHERE id = 12) WHERE person.id = 12;'
@@ -444,8 +490,8 @@
       filter: '{ "_id": 12 }'
       value: '{"$unset": {"age": 1}}'
 
-#42- delete element in array -one record (complicated, need to have specific jsonb you want to "update")
-  - id: 42
+#D2- delete element in array -one record (complicated, need to have specific jsonb you want to "update") (BEFORE #42)
+  - id: 43
     description: "Delete first contact from record with id 12"
     fetch: false
     postgres: 'UPDATE person SET data = (SELECT jsonb ''{"age": 55, "cars": [], "name": "Meyers Parks", "pets": [{"age": 6, "name": "Craig", "species": "horse"}, {"age": 7, "name": "Eddie", "species": "mouse"}, {"age": 8, "name": "Hollie", "species": "rabbit"}, {"age": 4, "name": "Allen", "species": "rabbit"}, {"age": 14, "name": "Malone", "species": "horse"}], "Address": {"city": "Lindisfarne", "state": "Delaware", "street": "Whitney Avenue", "postcode": "946 88"}, "contacts": ["+1 (967) 471-3603", "+1 (814) 492-2778", "+1 (998) 597-3090", "+1 (811) 438-3879", "+1 (809) 453-3951", "+1 (910) 534-3344", "+1 (838) 496-3026", "+1 (997) 413-3537", "+1 (981) 551-3583", "+1 (821) 463-3727", "+1 (938) 466-2232", "+1 (952) 424-3443", "+1 (967) 447-3044", "+1 (999) 421-2239", "+1 (876) 518-2046"]}'' #- ''{contacts, 0}'' FROM person WHERE id = 12) WHERE person.id = 12;'
@@ -455,8 +501,8 @@
       filter: '{ "_id": 12 }'
       value: '{"$unset": {"contacts.0": 1}}'
 
-#43- delete element in nested array -one record (complicated, need to have specific jsonb you want to "update")
-  - id: 43
+#D3- delete element in nested array -one record (complicated, need to have specific jsonb you want to "update") (BEFORE #43)
+  - id: 44
     description: "Delete age of first pet from record with id 12"
     fetch: false
     postgres: 'UPDATE person SET data = (SELECT jsonb ''{"age": 55, "cars": [], "name": "Meyers Parks", "pets": [{"age": 6, "name": "Craig", "species": "horse"}, {"age": 7, "name": "Eddie", "species": "mouse"}, {"age": 8, "name": "Hollie", "species": "rabbit"}, {"age": 4, "name": "Allen", "species": "rabbit"}, {"age": 14, "name": "Malone", "species": "horse"}], "Address": {"city": "Lindisfarne", "state": "Delaware", "street": "Whitney Avenue", "postcode": "946 88"}, "contacts": ["+1 (967) 471-3603", "+1 (814) 492-2778", "+1 (998) 597-3090", "+1 (811) 438-3879", "+1 (809) 453-3951", "+1 (910) 534-3344", "+1 (838) 496-3026", "+1 (997) 413-3537", "+1 (981) 551-3583", "+1 (821) 463-3727", "+1 (938) 466-2232", "+1 (952) 424-3443", "+1 (967) 447-3044", "+1 (999) 421-2239", "+1 (876) 518-2046"]}'' #- ''{pets, 0, age}'' FROM person WHERE id = 12) WHERE person.id = 12;'
@@ -466,8 +512,8 @@
       filter: '{ "_id": 12 }'
       value: '{"$unset": {"pets.0.age": 1}}'
 
-#44- delete one record
-  - id: 44
+#D4- delete one record (BEFORE #44)
+  - id: 45
     description: "Delete record with id 12"
     fetch: false
     postgres: DELETE FROM person WHERE id = 12;
@@ -476,9 +522,8 @@
       method: delete_one
       filter: '{ "_id": 12 }'
 
-
-#45- delete multiple records
-  - id: 45
+#D5- delete multiple records (BEFORE #45)
+  - id: 46
     description: "Delete record where age is 26"
     fetch: false
     postgres: DELETE FROM person WHERE (data -> 'age')::int = 26;
@@ -487,9 +532,15 @@
       method: delete_many
       filter: '{ "age": { "$eq": 26} }'
 
+
+
+
+
+#(SaL) SORT AND LIMIT SECTION
+
 # TODO some suggestions:
-# 46 - sort and limit
-  - id: 46
+# SaL1 - sort and limit (BEFORE #46)
+  - id: 47
     description: "sort : first 10 people with 'oil' defect ordered by city asc"
     fetch: true
     postgres: select (data->>'name'),(data->>'Address') from person where data @@ '$.cars[*].tech_exams[*].defects[*] == "oil"' order by (data -> 'Address') ->> 'city' ASC limit 10;
@@ -498,8 +549,8 @@
       method: aggregate
       filter: '[{"$match": {"cars.tech_exams.defects": "oil"}}, {"$sort":{"Address.city":1}}, {"$limit":10}]'
 
-#47 sort and limit 2
-  - id: 47
+#SaL2 sort and limit 2 (BEFORE #47)
+  - id: 48
     description: "sort: names and addresses of first 40 people that are younger than 25 or older than 55 ordered by state (primarily) and city asc"
     fetch: true
     postgres: select (data->>'name'),(data->>'Address') from person where (data->'age')::int<25 OR (data->'age')::int>55 order by (data -> 'Address') ->> 'state',(data -> 'Address') ->> 'city' ASC limit 40;
@@ -507,9 +558,15 @@
       collection: person
       method: aggregate
       filter: '[{"$match" : {"$or": [{"age":{ "$lt": 25}},{"age":{ "$gt": 55}}]}},{"$sort":{"Address.state":1, "Address.city":1 }},{"$project":{"_id":0, "name":1, "Address":1 } }]'
-  
-#48 lookup/join + aggregation 1
-  - id: 48
+
+
+
+
+
+#(JaA) JOIN AND AGGREGATE SECTION
+
+#JaA1 lookup/join + aggregation 1 (BEFORE #48)
+  - id: 49
     description: "lookup/join + aggregation: average number of speed violations (records) by people from Utah with age less than 20"
     fetch: false
     postgres: select AVG(count) from (select t.name, count(speed_violation.id) from (select (data->>'name') as name, jsonb_array_elements(data -> 'cars')-> 'license_plate' as license_plate from person where (data->'age')::int<20 and data @@ '$.Address.state == "Utah"') as t inner join speed_violation on t.license_plate = speed_violation.data -> 'license_plate' group by t.name) as k;
@@ -518,8 +575,8 @@
       method: aggregate
       filter: '[{"$match" : {"$and": [{"age":{ "$lt": 20}},{"Address.state" : "Utah"}]}}, {"$lookup":{"from": "speed_violation","localField": "cars.license_plate","foreignField": "license_plate", "as":"violations"}}, {"$group":{"_id":null, "violations_avg_count": {"$avg": {"$size":"$violations"} } }}]'
 
-#49 lookup/join + aggregation 2
-  - id: 49
+#JaA2 lookup/join + aggregation 2 (BEFORE #49)
+  - id: 50
     description: "lookup/join + aggregation maximum speed violation (difference between limit and actual speed) by people living in Utah older then 92"
     fetch: false
     postgres: select max((k.data -> 'actual_speed')::int - (k.data -> 'speed_limit')::int) from ((select jsonb_array_elements(data -> 'cars')-> 'license_plate' as license_plate from person where (data->'age')::int>92 and data @@ '$.Address.state == "Utah"') as t inner join speed_violation on t.license_plate = speed_violation.data -> 'license_plate') as k;
@@ -528,27 +585,13 @@
       method: aggregate
       filter: '[{"$match" : {"$and": [{"age":{ "$gt": 92}},{"Address.state" : "Utah"}]}}, {"$lookup":{"from": "speed_violation","localField": "cars.license_plate","foreignField": "license_plate", "as":"violations"}},{"$unwind":"$violations"}, {"$group":{"_id":null, "max_violation": {"$max": {"$subtract": ["$violations.actual_speed","$violations.speed_limit"]} } }}]'
 
-#50 array query 1
-  - id: 50
-    description: "array query: people from Nevada who own at least one elephant older then 10 "
-    fetch: true
-    postgres: select * from person where data @@ '$.Address.state == "Nevada"' and data @? '$.pets[*] ? (@.age > 10 && @.species == "elephant")';
-    mongo:
-      collection: person
-      method: find
-      filter: '{"$and":  [{"Address.state":"Nevada"},  {"pets": { "$elemMatch": {"$and": [{"species":"elephant"},{"age":{"$gt":10}}]}}}]}'
 
-#51 array query 2
+
+
+#(Di) DISTINCT SECTION
+
+#Di1 using distinct on simple toplevel array (BEFORE #52)
   - id: 51
-    description: "array query: people who own exactly 1 car and 2 pets"
-    fetch: true
-    postgres: select t.id, t.data from (select *, jsonb_array_length(data -> 'cars') as car_count, jsonb_array_length(data -> 'pets') as pets_count from person) as t where t.car_count = 1 and t.pets_count = 2;
-    mongo:
-      collection: person
-      method: find
-      filter: '{"$and": [{"cars":{"$size":  1 }}, {"pets": {"$size" :2}}]}'
-#52 using distinct on simple toplevel array
-  - id: 52
     description: "Select contacts from all people"
     fetch: true
     postgres: select distinct t.contacts from (select jsonb_array_elements(data->'contacts') as contacts from person) as t;
