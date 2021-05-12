@@ -27,7 +27,7 @@ class ExperimentApp:
         
         with open("queries.yaml", 'r') as stream:
             queries = yaml.safe_load(stream)
-        
+
         def default_result(name, inner_name, *args):
             # optional description argument
             desc = name if len(args) == 0 else args[0]
@@ -41,6 +41,9 @@ class ExperimentApp:
             time_person_m, time_speed_violation_m = self.mongo.load_data()
             print("MongoDB: Loading time for person table is: ", time_person_m)
             print("MongoDB: Loading time for speed_violation table is: ", time_speed_violation_m)
+
+            # retrieve id of record in mongo which is equal of Postgres id 12 fot later usage
+            self.mongo.get_objectId_of_postgres_id_12()
 
             default_result("Data loading person",f"MongoDB{' with index' if any(mongo_indexes) else ''}").append(time_person_m)
             default_result("Data loading speed_violation", f"MongoDB{' with index' if any(mongo_indexes) else ''}").append(time_speed_violation_m)
@@ -82,9 +85,8 @@ class ExperimentApp:
                 # The text here needs to match one of the values in visualization.py
                 # dicitonary `columns`
                 default_result(str(query_id), psql_index_text[psql_index] + psql_index, desc).append(postgres_time)
-        
-            
-        for i in range(10):
+
+        for i in range(1):
             results_json = {}
             if os.path.isfile("results.json"):
                 with open("results.json", "r") as result_file:
@@ -127,3 +129,4 @@ class ExperimentApp:
 
             with open("results.json", "w") as result_file:
                 json.dump(results_json, result_file, indent = 2)
+
