@@ -206,6 +206,21 @@
       filter: '[ {"$unwind":"$cars"},{"$unwind": "$cars.tech_exams"},{"$group":{"_id": null,"sum": { "$sum": {"$size": "$cars.tech_exams.defects"}}}}]'
       #filter: '[{"$unwind":"$cars"},{"$unwind": "$cars.tech_exams"},{"$project": {"_id":0,"arraySize":{"$size" : "$cars.tech_exams.defects"}}}, {"$group":{"_id": null,"sum": { "$sum": "$arraySize" }}}]'
 
+# TODO ZMAZAT
+#20- count na query #8
+  - id: 20
+    description: "Select count of name of person, age of person, license plate of person with record, date of speed violation, speed limit and actual speed of every speed violation record with actual speed higher than 100 (should be 80877 rows)"
+    #fetch: true
+    #postgres: 'select count(*) from (select t.name, t.age, t.license_plate, (speed_violation.data->>''date'') as date, (speed_violation.data->>''speed_limit'') as speed_limit, (speed_violation.data->>''actual_speed'') as actual_speed from (select person.data ->> ''name'' as name, person.data ->> ''age'' as age, jsonb_array_elements(person.data -> ''cars'') -> ''license_plate'' as license_plate from person) as t inner join speed_violation on license_plate = speed_violation.data -> ''license_plate'' where (speed_violation.data -> ''actual_speed'')::int > 100) as k;'
+    #mongo:
+    #  descriptionMongo: "Select names of all people who drove with speed 200"
+    #  collection: speed_violation
+    #  method: count
+    #  filter: '{ "actual_speed" : {"$gt":  100 }}'
+#       #filter: '[{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "person", "localField": "license_plate", "foreignField": "cars.license_plate", "as": "join"}}, {"$count":"count"} ]'
+#       #filter: [{"$lookup":{"from": "speed_violation", "localField": "cars.license_plate", "foreignField": "license_plate", "as": "join"}}, {"$project":{"name": 1, "join.actual_speed":1}} ]
+#       #filte3r: [{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "speed_violation", "let": { "license_plate": "$license_plate"},"pipeline": [{ "$match":{ "$expr":{ "$eq": [ "$license_plate",  "$cars.license_plate" ]}}}], "as": "join"}}, {"$project":{"actual_speed": 1, "join":1}} ]
+
 
 #21- cisty select bez akychkolvek podmienok
   - id: 21
@@ -228,11 +243,10 @@
       filter: '{ }'
 
 #23- jednodychy select s agregaciou array_agg
-  # TODO: nic mi to nevypsalo v psql
   - id: 23
     description: "Put names of all people concatenated into an array with ARRAY_AGG"
     fetch: true
-    postgres: 'SELECT ARRAY_AGG(data->''name'') from person;'
+    postgres: 'SELECT json_agg(data->''name'') from person;'
     mongo:
       collection: person
       method: aggregate
@@ -271,18 +285,17 @@
       filter: '{ }'
 
 #27- count na query #26
-  # TODO: Tady mi nesedi vysledek - postgres jen 50000? Podle me to pocitat jen pocet lidi
   - id: 27
     description: "Count contacts from all people"
     fetch: true
-    postgres: select count(data->>'contacts') from person;
+    postgres: select sum(t.contact_count) from (select jsonb_array_length(data->'contacts') as contact_count from person) as t;
     mongo:
       collection: person
       method: aggregate
       filter: '[ {"$project": {"_id":0,"arraySize":{"$size":"$contacts"}}},{"$group": {"_id":null,"totalArraysSize":{"$sum":"$arraySize"}}}]'
 
 #28- jednoduchy select  na toplevel array atribute (vysledky po jednom v tabulke)
-  #TODO distinct or not?
+  #TODO MONGO ZMAZAT DISTINCT
   - id: 28
     description: "Select contacts from all people"
     fetch: true
@@ -479,7 +492,7 @@
   - id: 46
     description: "sort : first 10 people with 'oil' defect ordered by city asc"
     fetch: true
-    #postgres: DELETE FROM person WHERE (data -> 'age')::int = 26;
+    postgres: select (data->>'name'),(data->>'Address') from person where data @@ '$.cars[*].tech_exams[*].defects[*] == "oil"' order by (data -> 'Address') ->> 'city' ASC limit 10;
     mongo:
       collection: person
       method: aggregate
@@ -489,7 +502,7 @@
   - id: 47
     description: "sort: names and addresses of first 40 people that are younger than 25 or older than 55 ordered by state (primarily) and city asc"
     fetch: true
-    #postgres: DELETE FROM person WHERE (data -> 'age')::int = 26;
+    postgres: select (data->>'name'),(data->>'Address') from person where (data->'age')::int<25 OR (data->'age')::int>55 order by (data -> 'Address') ->> 'state',(data -> 'Address') ->> 'city' ASC limit 40;
     mongo:
       collection: person
       method: aggregate
@@ -499,7 +512,7 @@
   - id: 48
     description: "lookup/join + aggregation: average number of speed violations (records) by people from Utah with age less than 20"
     fetch: false
-    #postgres: DELETE FROM person WHERE (data -> 'age')::int = 26;
+    postgres: select AVG(count) from (select t.name, count(speed_violation.id) from (select (data->>'name') as name, jsonb_array_elements(data -> 'cars')-> 'license_plate' as license_plate from person where (data->'age')::int<20 and data @@ '$.Address.state == "Utah"') as t inner join speed_violation on t.license_plate = speed_violation.data -> 'license_plate' group by t.name) as k;
     mongo:
       collection: person
       method: aggregate
@@ -509,7 +522,7 @@
   - id: 49
     description: "lookup/join + aggregation maximum speed violation (difference between limit and actual speed) by people living in Utah older then 92"
     fetch: false
-    #postgres: DELETE FROM person WHERE (data -> 'age')::int = 26;
+    postgres: select max((k.data -> 'actual_speed')::int - (k.data -> 'speed_limit')::int) from ((select jsonb_array_elements(data -> 'cars')-> 'license_plate' as license_plate from person where (data->'age')::int>92 and data @@ '$.Address.state == "Utah"') as t inner join speed_violation on t.license_plate = speed_violation.data -> 'license_plate') as k;
     mongo:
       collection: person
       method: aggregate
@@ -519,7 +532,7 @@
   - id: 50
     description: "array query: people from Nevada who own at least one elephant older then 10 "
     fetch: true
-    #postgres: DELETE FROM person WHERE (data -> 'age')::int = 26;
+    postgres: select * from person where data @@ '$.Address.state == "Nevada"' and data @? '$.pets[*] ? (@.age > 10 && @.species == "elephant")';
     mongo:
       collection: person
       method: find
@@ -529,11 +542,20 @@
   - id: 51
     description: "array query: people who own exactly 1 car and 2 pets"
     fetch: true
-    #postgres: DELETE FROM person WHERE (data -> 'age')::int = 26;
+    postgres: select t.id, t.data from (select *, jsonb_array_length(data -> 'cars') as car_count, jsonb_array_length(data -> 'pets') as pets_count from person) as t where t.car_count = 1 and t.pets_count = 2;
     mongo:
       collection: person
       method: find
       filter: '{"$and": [{"cars":{"$size":  1 }}, {"pets": {"$size" :2}}]}'
+#52 using distinct on simple toplevel array
+  - id: 52
+    description: "Select contacts from all people"
+    fetch: true
+    postgres: select distinct t.contacts from (select jsonb_array_elements(data->'contacts') as contacts from person) as t;
+    mongo:
+      collection: person
+      method: distinct
+      distinct: 'contacts'
 
 # #52 delete with arithmetic condition
 #   - id: 52

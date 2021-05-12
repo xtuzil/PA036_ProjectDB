@@ -16,9 +16,6 @@ colors = {
     "PostgreSQL with index jsonb_path_ops": "steelblue",
 }
 
-with open("results.json", "r") as results_file:
-    results = json.load(results_file)
-
 def normalize(description, names):
     columns = {}
     result = {
@@ -33,10 +30,10 @@ def normalize(description, names):
         for column_name, column_values in results[name]["columns"].items():
             new_column = columns.setdefault(column_name, [])
             for value in column_values:
-                new_column.append(value / maximum)
+                new_column.append(value / maximum if maximum != 0 else value)
     return result
 
-def savefigs(output_name, results):
+def preprocess(results):
     width = math.ceil(math.sqrt(len(results)))
     fig, axes = plt.subplots(
         ncols = width,
@@ -45,7 +42,12 @@ def savefigs(output_name, results):
         figsize = [width * 6 * i for i in (1, 1)]
     )
     
-    for result, index in zip(results, range(len(results))):
+    return width, fig, axes
+
+def savefigs(output_name, results):
+    width, fig, axes = preprocess(results)
+    
+    for result, index in zip(results.values(), range(len(results))):
         ax = axes[index // width][index % width]
         labels = list(result["columns"].keys())
         data = [column for column in result["columns"].values()]
@@ -69,7 +71,42 @@ def savefigs(output_name, results):
         
     plt.savefig(output_name)
 
-savefigs("queries-grouped.png", [normalize("selecty", [
+def savefigs_grouped(output_name, results):
+    width, fig, axes = preprocess(results)
+    
+    for result, index in zip(results, range(len(results))):
+        ax = axes[index // width][index % width]
+        
+        labels = list(result["columns"].keys())
+        data = [column for column in result["columns"].values()]
+        
+        bar = ax.bar(
+            labels,
+            [numpy.average(d) for d in data],
+            yerr = [numpy.std(d) for d in data],
+            width = 0.35,
+            color = [colors[col] for col in labels],
+        )
+        
+        ax.set_title(result["description"])
+        
+        ax.set_ylim(0)
+        
+        ## Set axis names
+        ax.yaxis.grid(True)
+        ax.set_xlabel("Database type")
+        ax.set_ylabel("Relative time")
+        
+    plt.savefig(output_name)
+
+################################################################################
+
+with open("results.json", "r") as results_file:
+    results = json.load(results_file)
+
+savefigs("queries.png", results)
+
+savefigs_grouped("queries-grouped.png", [normalize("selecty", [
         "6", "7", "21", "24", "26", "28",
     ]),
     normalize("selecty s podmienkami", [
