@@ -16,7 +16,7 @@ class ExperimentApp:
 
     def run(self, rounds_number):
 
-        mongo_indexes = {"person": ["age", "cars.license_plate", "Address.state", "Address.city"],
+        mongo_indexes = {"person": ["age", "cars.license_plate", "Address.state", "Address.city","pets.species","pets.age"],
         "speed_violation": ["actual_speed", "license_plate"] }
 
         psql_index_text = {

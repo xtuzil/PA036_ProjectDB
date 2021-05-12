@@ -46,26 +46,25 @@
       filter: '{ }'
 
 #S4- jednoduchy select  na toplevel array atribute (vysledky po jednom v tabulke) (BEFORE #28)
-  #TODO MONGO ZMAZAT DISTINCT
   - id: 4
     description: "Select contacts from all people"
     fetch: true
     postgres: select jsonb_array_elements(data->'contacts') from person;
     mongo:
       collection: person
-      method: distinct
-      distinct: 'contacts'
+      method: aggregate
+      filter: '[{"$unwind": "$contacts"},{"$group": { "_id": null, "result": { "$push": "$contacts" }}}]'
+
 
 #S5- Zanoreny select v poli cars (BEFORE #6)
-  #TODO MONGO ZMAZAT DISTINCT
   - id: 5
     description: "Select all license plates of all cars"
     fetch: true
     postgres: select jsonb_array_elements(data -> 'cars') -> 'license_plate' from person;
     mongo:
       collection: person
-      method: distinct
-      distinct: 'cars.license_plate'
+      method: aggregate
+      filter: '[{"$unwind": "$cars"},{"$group": { "_id": null, "result": { "$push": "$cars.license_plate" }}}]'
 
 #S6- Viac zanoreny select v poli cars cez pole tech_exams k polu defects (BEFORE #7)
   - id: 6
@@ -552,8 +551,7 @@
     mongo:
       collection: person
       method: aggregate
-      filter: '[{"$match" : {"$or": [{"age":{ "$lt": 25}},{"age":{ "$gt": 55}}]}},{"$sort":{"Address.state":1, "Address.city":1 }},{"$project":{"_id":0, "name":1, "Address":1 } }]'
-
+      filter: '[{"$match" : {"$or": [{"age":{ "$lt": 25}},{"age":{ "$gt": 55}}]}},{"$sort":{"Address.state":1, "Address.city":1 }},{"$project":{"_id":0, "name":1, "Address":1 } },{"$limit":40}]'
 
 
 
