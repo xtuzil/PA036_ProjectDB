@@ -86,8 +86,8 @@ $`pip install PyYAML`
 $`pip install jsonlines`
 
 ### matplotlib
-in Fedora 33: $`sudo dnf install python3-matplotlib.x86_64`      
-$`pip install matplotlib`
+$`pip install matplotlib`     
+in Fedora 33: $`sudo dnf install python3-matplotlib.x86_64`
 
 ## Creating Postgres db
 $`initdb /usr/local/var/postgres`  
@@ -104,5 +104,6 @@ $`gunzip -k personData.json.gz`
 Windows - set the access permissions of person.json: `Properties -> Security -> Edit -> Add -> "yourcomputername\Users"`
 
 ## Running the app
-Just run main() in main.py
+Just run main() in main.py it creates results.json
+To create graphs the results.json must exist and than run visualization.py
 
