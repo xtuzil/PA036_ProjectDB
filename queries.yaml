@@ -83,15 +83,14 @@
 
 #8- Zlozity select z person s joinom na speed_violation
   - id: 8
-    description: "Select name of person, age of person, license plate of person with record, date of speed violation, speed limit and actual speed of every speed violation record with actual speed higher than 100 (should be 80877 rows)"
+    description: "Select name of person, age of person, license plate of person with record, date of speed violation, speed limit and actual speed of every speed violation record with actual speed higher than 199"
     fetch: true
     postgres: 'select t.name, t.age, t.license_plate, (speed_violation.data->>''date'') as date, (speed_violation.data->>''speed_limit'') as speed_limit, (speed_violation.data->>''actual_speed'') as actual_speed from (select person.data ->> ''name'' as name, person.data ->> ''age'' as age, jsonb_array_elements(person.data -> ''cars'') -> ''license_plate'' as license_plate from person) as t inner join speed_violation on license_plate = speed_violation.data -> ''license_plate'' where (speed_violation.data -> ''actual_speed'')::int > 199;'
     #TODO: mongo mega pomaly nevim, jestli vyresim
-    mongo:
-      descriptionMongo: "Select names of all people who drove with speed 200"
-      collection: speed_violation
-      method: aggregate
-      filter: '[{ "$match": { "actual_speed": { "$gt": 199}}},{"$lookup":{"from": "person","let":{ "plate": "$license_plate"},"pipeline":[{"$project": {"name":1, "age":1, "cars.license_plate":1, "_id":0}},{"$match":{"$expr":{"$in": [ "$$plate", "$cars.license_plate"]}}},{ "$project": {"name":1,"age":1 } }],"as": "violations"}},{"$unwind":"$violations"},{"$project": {"_id":0}}]'
+    #mongo:
+      #collection: speed_violation
+      #method: aggregate
+      #filter: '[{ "$match": { "actual_speed": { "$gt": 199}}},{"$lookup":{"from": "person","let":{ "plate": "$license_plate"},"pipeline":[{"$project": {"name":1, "age":1, "cars.license_plate":1, "_id":0}},{"$match":{"$expr":{"$in": [ "$$plate", "$cars.license_plate"]}}},{ "$project": {"name":1,"age":1 } }],"as": "violations"}},{"$unwind":"$violations"},{"$project": {"_id":0}}]'
       #filter: '[{"$project": {"name":1, "age":1, "cars.license_plate":1, "_id":0}},{"$unwind":"$cars"},{"$lookup":{"from": "speed_violation","let":{ "plate": "$cars.license_plate"},"pipeline":[{"$match":{"$expr":{"$and":[{"$gt":["$actual_speed",199]},{"$eq": [ "$license_plate", "$$plate"]}]}}},{ "$project": {"date":1} }],"as": "violations"}},{"$unwind":"$violations"},{"$project": {"_id":0}}]'
       #filter: '[{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "person", "localField": "license_plate", "foreignField": "cars.license_plate", "as": "join"}}, {"$project":{"name":"$join.name"}} ]'
 
@@ -207,22 +206,6 @@
       filter: '[ {"$unwind":"$cars"},{"$unwind": "$cars.tech_exams"},{"$group":{"_id": null,"sum": { "$sum": {"$size": "$cars.tech_exams.defects"}}}}]'
       #filter: '[{"$unwind":"$cars"},{"$unwind": "$cars.tech_exams"},{"$project": {"_id":0,"arraySize":{"$size" : "$cars.tech_exams.defects"}}}, {"$group":{"_id": null,"sum": { "$sum": "$arraySize" }}}]'
 
-# TODO Tahle query podle me moc nedava smysl, ten join je zbytecnej, nakonec by to mel byt jen pocet tech speed_violation zaznamu splnujici tu podminku.
-#20- count na query #8
-  - id: 20
-    description: "Select count of name of person, age of person, license plate of person with record, date of speed violation, speed limit and actual speed of every speed violation record with actual speed higher than 100 (should be 80877 rows)"
-    fetch: true
-    postgres: 'select count(*) from (select t.name, t.age, t.license_plate, (speed_violation.data->>''date'') as date, (speed_violation.data->>''speed_limit'') as speed_limit, (speed_violation.data->>''actual_speed'') as actual_speed from (select person.data ->> ''name'' as name, person.data ->> ''age'' as age, jsonb_array_elements(person.data -> ''cars'') -> ''license_plate'' as license_plate from person) as t inner join speed_violation on license_plate = speed_violation.data -> ''license_plate'' where (speed_violation.data -> ''actual_speed'')::int > 100) as k;'
-    mongo:
-      descriptionMongo: "Select names of all people who drove with speed 200"
-      collection: speed_violation
-      method: count
-      filter: '{ "actual_speed" : {"$gt":  100 }}'
-#       #filter: '[{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "person", "localField": "license_plate", "foreignField": "cars.license_plate", "as": "join"}}, {"$count":"count"} ]'
-#       #filter: [{"$lookup":{"from": "speed_violation", "localField": "cars.license_plate", "foreignField": "license_plate", "as": "join"}}, {"$project":{"name": 1, "join.actual_speed":1}} ]
-#       #filte3r: [{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "speed_violation", "let": { "license_plate": "$license_plate"},"pipeline": [{ "$match":{ "$expr":{ "$eq": [ "$license_plate",  "$cars.license_plate" ]}}}], "as": "join"}}, {"$project":{"actual_speed": 1, "join":1}} ]
-
-
 
 #21- cisty select bez akychkolvek podmienok
   - id: 21
@@ -277,7 +260,6 @@
       filter: '{}'
 
 #26- jednoduchy select  na toplevel array atribute (vysledky v poliach podla zaznamov)
-  # TODO postgres pole vs. mongo contacts: [...]  je to ok?
   - id: 26
     description: "Select contacts from all people"
     fetch: true
@@ -362,11 +344,11 @@
     description: "Update name of person with id 12 to Meyers Parks Junior"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{name}', '"Meyers Parks Junior"', false) WHERE id = 12;
-    #mongo: TODO ID
-      #collection: person
-      #method: update_one
-      #filter: '{ "_id": ObjectId("607ab4e4daa8fcc3c015de8d") }'
-      #value:  '{"$set": {"name": "Meyers Parks Junior"}}'
+    mongo:
+      collection: person
+      method: update_one
+      filter: '{ "_id": 12 }'
+      value:  '{"$set": {"name": "Meyers Parks Junior"}}'
 
 
 #35- update v array
@@ -374,11 +356,11 @@
     description: "Update first contact of person with id 12 to +1 (666) 471-3603 (add when non exist)"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{contacts, 0}', '"+1 (666) 471-3603"', true) WHERE id = 12;
-    #mongo: TODO ID
-      #collection: person
-      #method: update_one
-      #filter: '{ "_id": 12 }'
-      #value: '{"$set": {"contacts.0": "+1 (666) 471-3603"}}'
+    mongo:
+      collection: person
+      method: update_one
+      filter: '{ "_id": 12 }'
+      value: '{"$set": {"contacts.0": "+1 (666) 471-3603"}}'
 
 
 #36- nested update atribut v array
@@ -386,11 +368,11 @@
     description: "Update name of first pet of person with id 12 to Dr. Craig"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{pets, 0, name}', '"Dr. Craig"', true) WHERE id = 12;
-    #mongo: TODO ID
-      #collection: person
-      #method: update_one
-      #filter: '{ "_id": ObjectId("607ab4e4daa8fcc3c015de8d") }'
-      #value: '{"$set": {"pets.0.name": "Dr. Craig"}}'
+    mongo:
+      collection: person
+      method: update_one
+      filter: '{ "_id": 12 }'
+      value: '{"$set": {"pets.0.name": "Dr. Craig"}}'
 
 #37- more nested update of all - atribut v nested array
   - id: 37
@@ -443,43 +425,43 @@
     description: "Delete age from record with id 12"
     fetch: false
     postgres: 'UPDATE person SET data = (SELECT jsonb ''{"age": 55, "cars": [], "name": "Meyers Parks", "pets": [{"age": 6, "name": "Craig", "species": "horse"}, {"age": 7, "name": "Eddie", "species": "mouse"}, {"age": 8, "name": "Hollie", "species": "rabbit"}, {"age": 4, "name": "Allen", "species": "rabbit"}, {"age": 14, "name": "Malone", "species": "horse"}], "Address": {"city": "Lindisfarne", "state": "Delaware", "street": "Whitney Avenue", "postcode": "946 88"}, "contacts": ["+1 (967) 471-3603", "+1 (814) 492-2778", "+1 (998) 597-3090", "+1 (811) 438-3879", "+1 (809) 453-3951", "+1 (910) 534-3344", "+1 (838) 496-3026", "+1 (997) 413-3537", "+1 (981) 551-3583", "+1 (821) 463-3727", "+1 (938) 466-2232", "+1 (952) 424-3443", "+1 (967) 447-3044", "+1 (999) 421-2239", "+1 (876) 518-2046"]}'' - ''age'' FROM person WHERE id = 12) WHERE person.id = 12;'
-    #mongo: TODO ID
-      #collection: person
-      #method: update_one
-      #filter: '{ "_id": ObjectId("607ab4e4daa8fcc3c015de8d") }'
-      #value: '{"$unset": {"age": 1}}'
+    mongo:
+      collection: person
+      method: update_one
+      filter: '{ "_id": 12 }'
+      value: '{"$unset": {"age": 1}}'
 
 #42- delete element in array -one record (complicated, need to have specific jsonb you want to "update")
   - id: 42
     description: "Delete first contact from record with id 12"
     fetch: false
     postgres: 'UPDATE person SET data = (SELECT jsonb ''{"age": 55, "cars": [], "name": "Meyers Parks", "pets": [{"age": 6, "name": "Craig", "species": "horse"}, {"age": 7, "name": "Eddie", "species": "mouse"}, {"age": 8, "name": "Hollie", "species": "rabbit"}, {"age": 4, "name": "Allen", "species": "rabbit"}, {"age": 14, "name": "Malone", "species": "horse"}], "Address": {"city": "Lindisfarne", "state": "Delaware", "street": "Whitney Avenue", "postcode": "946 88"}, "contacts": ["+1 (967) 471-3603", "+1 (814) 492-2778", "+1 (998) 597-3090", "+1 (811) 438-3879", "+1 (809) 453-3951", "+1 (910) 534-3344", "+1 (838) 496-3026", "+1 (997) 413-3537", "+1 (981) 551-3583", "+1 (821) 463-3727", "+1 (938) 466-2232", "+1 (952) 424-3443", "+1 (967) 447-3044", "+1 (999) 421-2239", "+1 (876) 518-2046"]}'' #- ''{contacts, 0}'' FROM person WHERE id = 12) WHERE person.id = 12;'
-    #mongo: TODO ID
-      #collection: person
-      #method: update_one
-      #filter: '{ "_id": ObjectId("607ab4e4daa8fcc3c015de8d") }'
-      #value: '{"$unset": {"contacts.0": 1}}'
+    mongo:
+      collection: person
+      method: update_one
+      filter: '{ "_id": 12 }'
+      value: '{"$unset": {"contacts.0": 1}}'
 
 #43- delete element in nested array -one record (complicated, need to have specific jsonb you want to "update")
   - id: 43
     description: "Delete age of first pet from record with id 12"
     fetch: false
     postgres: 'UPDATE person SET data = (SELECT jsonb ''{"age": 55, "cars": [], "name": "Meyers Parks", "pets": [{"age": 6, "name": "Craig", "species": "horse"}, {"age": 7, "name": "Eddie", "species": "mouse"}, {"age": 8, "name": "Hollie", "species": "rabbit"}, {"age": 4, "name": "Allen", "species": "rabbit"}, {"age": 14, "name": "Malone", "species": "horse"}], "Address": {"city": "Lindisfarne", "state": "Delaware", "street": "Whitney Avenue", "postcode": "946 88"}, "contacts": ["+1 (967) 471-3603", "+1 (814) 492-2778", "+1 (998) 597-3090", "+1 (811) 438-3879", "+1 (809) 453-3951", "+1 (910) 534-3344", "+1 (838) 496-3026", "+1 (997) 413-3537", "+1 (981) 551-3583", "+1 (821) 463-3727", "+1 (938) 466-2232", "+1 (952) 424-3443", "+1 (967) 447-3044", "+1 (999) 421-2239", "+1 (876) 518-2046"]}'' #- ''{pets, 0, age}'' FROM person WHERE id = 12) WHERE person.id = 12;'
-    #mongo: TODO ID
-      #collection: person
-      #method: update_one
-      #filter: '{ "_id": ObjectId("607ab4e4daa8fcc3c015de8d") }'
-      #value: '{"$unset": {"pets.0.age": 1}}'
+    mongo:
+      collection: person
+      method: update_one
+      filter: '{ "_id": 12 }'
+      value: '{"$unset": {"pets.0.age": 1}}'
 
 #44- delete one record
   - id: 44
     description: "Delete record with id 12"
     fetch: false
     postgres: DELETE FROM person WHERE id = 12;
-    #mongo: TODO ID
-      #collection: person
-      #method: delete_one
-      #filter: '{ "_id": ObjectId("607ab4e4daa8fcc3c015de8d") }'
+    mongo:
+      collection: person
+      method: delete_one
+      filter: '{ "_id": 12 }'
 
 
 #45- delete multiple records
