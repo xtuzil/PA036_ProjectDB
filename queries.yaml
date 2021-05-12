@@ -176,17 +176,13 @@
 
 #J1- Zlozity select z person s joinom na speed_violation (BEFORE #8)
   - id: 16
-    description: "Select name of person, age of person, license plate of person with record, date of speed violation, speed limit and actual speed of every speed violation record with actual speed higher than 199"
+    description: "Select name, age, license plate, date of violation, speed limit and actual speed with actual speed higher than 199 and speed limit equal to 30"
     fetch: true
-    postgres: 'select t.name, t.age, t.license_plate, (speed_violation.data->>''date'') as date, (speed_violation.data->>''speed_limit'') as speed_limit, (speed_violation.data->>''actual_speed'') as actual_speed from (select person.data ->> ''name'' as name, person.data ->> ''age'' as age, jsonb_array_elements(person.data -> ''cars'') -> ''license_plate'' as license_plate from person) as t inner join speed_violation on license_plate = speed_violation.data -> ''license_plate'' where (speed_violation.data -> ''actual_speed'')::int > 199;'
-    #TODO: mongo mega pomaly nevim, jestli vyresim
-    #mongo:
-      #collection: speed_violation
-      #method: aggregate
-      #filter: '[{ "$match": { "actual_speed": { "$gt": 199}}},{"$lookup":{"from": "person","let":{ "plate": "$license_plate"},"pipeline":[{"$project": {"name":1, "age":1, "cars.license_plate":1, "_id":0}},{"$match":{"$expr":{"$in": [ "$$plate", "$cars.license_plate"]}}},{ "$project": {"name":1,"age":1 } }],"as": "violations"}},{"$unwind":"$violations"},{"$project": {"_id":0}}]'
-      #filter: '[{"$project": {"name":1, "age":1, "cars.license_plate":1, "_id":0}},{"$unwind":"$cars"},{"$lookup":{"from": "speed_violation","let":{ "plate": "$cars.license_plate"},"pipeline":[{"$match":{"$expr":{"$and":[{"$gt":["$actual_speed",199]},{"$eq": [ "$license_plate", "$$plate"]}]}}},{ "$project": {"date":1} }],"as": "violations"}},{"$unwind":"$violations"},{"$project": {"_id":0}}]'
-      #filter: '[{ "$match": { "actual_speed": { "$gt": 199}}}, {"$lookup":{"from": "person", "localField": "license_plate", "foreignField": "cars.license_plate", "as": "join"}}, {"$project":{"name":"$join.name"}} ]'
-
+    postgres: 'select t.name, t.age, t.license_plate, (speed_violation.data->>''date'') as date, (speed_violation.data->>''speed_limit'') as speed_limit, (speed_violation.data->>''actual_speed'') as actual_speed from (select person.data ->> ''name'' as name, person.data ->> ''age'' as age, jsonb_array_elements(person.data -> ''cars'') -> ''license_plate'' as license_plate from person) as t inner join speed_violation on license_plate = speed_violation.data -> ''license_plate'' where (speed_violation.data -> ''actual_speed'')::int > 199 and (speed_violation.data -> ''speed_limit'')::int = 30;'
+    mongo:
+      collection: speed_violation
+      method: aggregate
+      filter: '[{"$match" : {"$and": [{ "actual_speed": { "$gt": 199}},{ "speed_limit": { "$eq": 30}}]}},{"$lookup":{"from":"person","localField":"license_plate","foreignField":"cars.license_plate","as":"violations"}},{"$unwind":"$violations"}, {"$project": {"_id":0, "license_plate":1, "date":1, "speed_limit":1, "actual_speed":1, "name": "$violations.name", "age": "$violations.age"}}]'
 
 
 
@@ -538,7 +534,6 @@
 
 #(SaL) SORT AND LIMIT SECTION
 
-# TODO some suggestions:
 # SaL1 - sort and limit (BEFORE #46)
   - id: 47
     description: "sort : first 10 people with 'oil' defect ordered by city asc"
