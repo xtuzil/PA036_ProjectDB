@@ -144,30 +144,39 @@ savefigs("queries.png", results)
 
 savefigs_grouped("queries-grouped.png", [
     normalize("selecty", [
-        "6", "7", "21", "24", "26", "28",
+        "1", "2", "3", "4", "5", "6",
     ]),
     normalize("selecty s podmienkami", [
-        "1", "2", "3", "4", "5", "29", "31", "32",
+        "7", "8", "9", "10", "11", "12", "13", "14", "15",
     ]),
     normalize("join", [
-        "8",
+        "16",
     ]),
     normalize("agregacie", [
-        "9", "10", "11", "12", "14", "23", "30",
+        "17", "18", "19", "20", "21", "22", "23",
     ]),
     normalize("select + podmienka + agregace", [
-        "13"
+        "24", "25",
     ]),
     normalize("doplnkovy count na prikazoch", [
-        "15", "16", "17", "18", "19", "20", "22", "25", "27",
+        "26", "27", "28", "29", "30", "31", "32", "33",
     ]),
     normalize("insert jeden zaznam", [
-        "33",
+        "34",
     ]),
     normalize("update", [
-        "34", "35", "36", "37", "38", "39", "40",
+        "35", "36", "37", "38", "39", "40", "41",
     ]),
     normalize("delete", [
-        "41", "42", "43", "44", "45",
+        "42", "43", "44", "45", "46",
+    ]),
+    normalize("sort + limit", [
+        "47", "48",
+    ]),
+    normalize("lookup/join + aggregate", [
+        "49", "50",
+    ]),
+    normalize("distinct", [
+        "51",
     ]),
 ])
