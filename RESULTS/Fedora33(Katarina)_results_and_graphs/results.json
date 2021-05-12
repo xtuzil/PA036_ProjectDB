@@ -1,0 +1,1062 @@
+{
+  "Data loading person": {
+    "description": "Data loading person",
+    "columns": {
+      "MongoDB": [
+        3.6265242099761963
+      ],
+      "MongoDB with index": [
+        3.925532817840576
+      ],
+      "PostgreSQL binary json": [
+        2.18161678314209
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        9.337342262268066
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        6.5996294021606445
+      ]
+    }
+  },
+  "Data loading speed_violation": {
+    "description": "Data loading speed_violation",
+    "columns": {
+      "MongoDB": [
+        1.3440074920654297
+      ],
+      "MongoDB with index": [
+        1.7704145908355713
+      ],
+      "PostgreSQL binary json": [
+        0.5170285701751709
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        1.4245553016662598
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.7839925289154053
+      ]
+    }
+  },
+  "1": {
+    "description": "Select all from speed_violation",
+    "columns": {
+      "MongoDB": [
+        0.2456951141357422
+      ],
+      "MongoDB with index": [
+        0.2783234119415283
+      ],
+      "PostgreSQL binary json": [
+        0.33783555030822754
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.38325929641723633
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.36510562896728516
+      ]
+    }
+  },
+  "2": {
+    "description": "Select all from person table",
+    "columns": {
+      "MongoDB": [
+        0.08293271064758301
+      ],
+      "MongoDB with index": [
+        0.09078025817871094
+      ],
+      "PostgreSQL binary json": [
+        0.10019707679748535
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.11454153060913086
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.10727477073669434
+      ]
+    }
+  },
+  "3": {
+    "description": "Select contacts from all people",
+    "columns": {
+      "MongoDB": [
+        0.13317561149597168
+      ],
+      "MongoDB with index": [
+        0.163743257522583
+      ],
+      "PostgreSQL binary json": [
+        0.14559483528137207
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.17266583442687988
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.15949010848999023
+      ]
+    }
+  },
+  "4": {
+    "description": "Select contacts from all people",
+    "columns": {
+      "MongoDB": [
+        0.996837854385376
+      ],
+      "MongoDB with index": [
+        1.254556655883789
+      ],
+      "PostgreSQL binary json": [
+        1.4561583995819092
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        1.2246439456939697
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        1.0514216423034668
+      ]
+    }
+  },
+  "5": {
+    "description": "Select all license plates of all cars",
+    "columns": {
+      "MongoDB": [
+        0.23752784729003906
+      ],
+      "MongoDB with index": [
+        0.35715627670288086
+      ],
+      "PostgreSQL binary json": [
+        0.3374183177947998
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.34459638595581055
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.3054962158203125
+      ]
+    }
+  },
+  "6": {
+    "description": "Select all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)",
+    "columns": {
+      "MongoDB": [
+        2.058391571044922
+      ],
+      "MongoDB with index": [
+        2.3866143226623535
+      ],
+      "PostgreSQL binary json": [
+        2.154980421066284
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        2.2235028743743896
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        2.143677234649658
+      ]
+    }
+  },
+  "7": {
+    "description": "Select people with age more than 40",
+    "columns": {
+      "MongoDB": [
+        2.7151618003845215
+      ],
+      "MongoDB with index": [
+        2.7827842235565186
+      ],
+      "PostgreSQL binary json": [
+        2.346832752227783
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        2.2948710918426514
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        2.817610263824463
+      ]
+    }
+  },
+  "8": {
+    "description": "Select people with age 40 (with containment function)",
+    "columns": {
+      "MongoDB": [
+        4.075500011444092
+      ],
+      "MongoDB with index": [
+        3.7758078575134277
+      ],
+      "PostgreSQL binary json": [
+        0.060190439224243164
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.031783103942871094
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.03005838394165039
+      ]
+    }
+  },
+  "9": {
+    "description": "Select people with contact like '539-206' (top level atribut contacts)",
+    "columns": {
+      "MongoDB": [
+        0.09496307373046875
+      ],
+      "MongoDB with index": [
+        0.0952455997467041
+      ],
+      "PostgreSQL binary json": [
+        0.05067896842956543
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.13316726684570312
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.13097023963928223
+      ]
+    }
+  },
+  "10": {
+    "description": "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)",
+    "columns": {
+      "MongoDB": [
+        0.04035043716430664
+      ],
+      "MongoDB with index": [
+        0.04043388366699219
+      ],
+      "PostgreSQL binary json": [
+        0.03387618064880371
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.09295392036437988
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.08410024642944336
+      ]
+    }
+  },
+  "11": {
+    "description": "Select person who owns car with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072",
+    "columns": {
+      "MongoDB": [
+        0.047698020935058594
+      ],
+      "MongoDB with index": [
+        0.0005478858947753906
+      ],
+      "PostgreSQL binary json": [
+        0.037100791931152344
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.00035190582275390625
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.0002512931823730469
+      ]
+    }
+  },
+  "12": {
+    "description": "Select all records in person with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072",
+    "columns": {
+      "MongoDB": [
+        0
+      ],
+      "MongoDB with index": [
+        0
+      ],
+      "PostgreSQL binary json": [
+        0.03983497619628906
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.0002880096435546875
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.00024056434631347656
+      ]
+    }
+  },
+  "13": {
+    "description": "Select all where date on tech_exam is 18/06/2015",
+    "columns": {
+      "MongoDB": [
+        0.14073824882507324
+      ],
+      "MongoDB with index": [
+        0.13961029052734375
+      ],
+      "PostgreSQL binary json": [
+        0.0772714614868164
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.011816978454589844
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.009796380996704102
+      ]
+    }
+  },
+  "14": {
+    "description": "array query: people from Nevada who own at least one elephant older then 10 ",
+    "columns": {
+      "MongoDB": [
+        0.05386471748352051
+      ],
+      "MongoDB with index": [
+        0.0050144195556640625
+      ],
+      "PostgreSQL binary json": [
+        0.03930091857910156
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.006165981292724609
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.0057756900787353516
+      ]
+    }
+  },
+  "15": {
+    "description": "array query: people who own exactly 1 car and 2 pets",
+    "columns": {
+      "MongoDB": [
+        0.04303097724914551
+      ],
+      "MongoDB with index": [
+        0.04522848129272461
+      ],
+      "PostgreSQL binary json": [
+        0.04105544090270996
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.0949552059173584
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.09668135643005371
+      ]
+    }
+  },
+  "16": {
+    "description": "Select name of person, age of person, license plate of person with record, date of speed violation, speed limit and actual speed of every speed violation record with actual speed higher than 199",
+    "columns": {
+      "MongoDB": [
+        0
+      ],
+      "MongoDB with index": [
+        0
+      ],
+      "PostgreSQL binary json": [
+        0.702662467956543
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.7182927131652832
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.6266298294067383
+      ]
+    }
+  },
+  "17": {
+    "description": "Count all from person table",
+    "columns": {
+      "MongoDB": [
+        0.0005283355712890625
+      ],
+      "MongoDB with index": [
+        0.0005030632019042969
+      ],
+      "PostgreSQL binary json": [
+        0.007635593414306641
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.014002561569213867
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.0093994140625
+      ]
+    }
+  },
+  "18": {
+    "description": "Select average age of all people",
+    "columns": {
+      "MongoDB": [
+        0.03803896903991699
+      ],
+      "MongoDB with index": [
+        0.042875051498413086
+      ],
+      "PostgreSQL binary json": [
+        0.04069972038269043
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.10634899139404297
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.1051020622253418
+      ]
+    }
+  },
+  "19": {
+    "description": "Select maximum age from all people",
+    "columns": {
+      "MongoDB": [
+        0.03728532791137695
+      ],
+      "MongoDB with index": [
+        0.041620492935180664
+      ],
+      "PostgreSQL binary json": [
+        0.04159045219421387
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.10617208480834961
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.10030055046081543
+      ]
+    }
+  },
+  "20": {
+    "description": "Select minimum age from all people",
+    "columns": {
+      "MongoDB": [
+        0.037871360778808594
+      ],
+      "MongoDB with index": [
+        0.040277957916259766
+      ],
+      "PostgreSQL binary json": [
+        0.04246091842651367
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.11514544486999512
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.10589718818664551
+      ]
+    }
+  },
+  "21": {
+    "description": "Select sum of age of all people (should be 2943583)",
+    "columns": {
+      "MongoDB": [
+        0.0390934944152832
+      ],
+      "MongoDB with index": [
+        0.043470144271850586
+      ],
+      "PostgreSQL binary json": [
+        0.043309688568115234
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.10643672943115234
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.10521817207336426
+      ]
+    }
+  },
+  "22": {
+    "description": "Put names of all people concatenated into an array with ARRAY_AGG",
+    "columns": {
+      "MongoDB": [
+        0.051412343978881836
+      ],
+      "MongoDB with index": [
+        0.056403160095214844
+      ],
+      "PostgreSQL binary json": [
+        0.13067293167114258
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.12379741668701172
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.11819720268249512
+      ]
+    }
+  },
+  "23": {
+    "description": "Get average of owned cars per person ",
+    "columns": {
+      "MongoDB": [
+        0.07604527473449707
+      ],
+      "MongoDB with index": [
+        0.07282900810241699
+      ],
+      "PostgreSQL binary json": [
+        0.043066978454589844
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.10567378997802734
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.10271763801574707
+      ]
+    }
+  },
+  "24": {
+    "description": "Count people with age more than 40",
+    "columns": {
+      "MongoDB": [
+        0.02442312240600586
+      ],
+      "MongoDB with index": [
+        0.009788036346435547
+      ],
+      "PostgreSQL binary json": [
+        0.043387651443481445
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.10631012916564941
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.10473346710205078
+      ]
+    }
+  },
+  "25": {
+    "description": "Put names of all people with age 18 concatenated into an array with ARRAY_AGG",
+    "columns": {
+      "MongoDB": [
+        0.023532390594482422
+      ],
+      "MongoDB with index": [
+        0.0018761157989501953
+      ],
+      "PostgreSQL binary json": [
+        0.047835588455200195
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.10985469818115234
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.11021184921264648
+      ]
+    }
+  },
+  "26": {
+    "description": "Select count of people with age 40 (with containment function)",
+    "columns": {
+      "MongoDB": [
+        0.024111270904541016
+      ],
+      "MongoDB with index": [
+        0.0005326271057128906
+      ],
+      "PostgreSQL binary json": [
+        0.044759273529052734
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.0022897720336914062
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.002067089080810547
+      ]
+    }
+  },
+  "27": {
+    "description": "Select count of people with contact like '539-206' (top level atribut contacts)",
+    "columns": {
+      "MongoDB": [
+        0.08486175537109375
+      ],
+      "MongoDB with index": [
+        0.08324337005615234
+      ],
+      "PostgreSQL binary json": [
+        0.07358050346374512
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.16418790817260742
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.17156100273132324
+      ]
+    }
+  },
+  "28": {
+    "description": "Select count of people with contact '+1 (966) 429-3818' (top level atribut contacts)",
+    "columns": {
+      "MongoDB": [
+        0.04071378707885742
+      ],
+      "MongoDB with index": [
+        0.042174339294433594
+      ],
+      "PostgreSQL binary json": [
+        0.052245140075683594
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.10945749282836914
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.10782027244567871
+      ]
+    }
+  },
+  "29": {
+    "description": "Select count of all license plates of all cars",
+    "columns": {
+      "MongoDB": [
+        0.0548090934753418
+      ],
+      "MongoDB with index": [
+        0.05624127388000488
+      ],
+      "PostgreSQL binary json": [
+        0.07551169395446777
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.06670594215393066
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.06241440773010254
+      ]
+    }
+  },
+  "30": {
+    "description": "Select count of all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)",
+    "columns": {
+      "MongoDB": [
+        0.32001209259033203
+      ],
+      "MongoDB with index": [
+        0.3191256523132324
+      ],
+      "PostgreSQL binary json": [
+        0.35714292526245117
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.2984151840209961
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.3126351833343506
+      ]
+    }
+  },
+  "31": {
+    "description": "Select count of all from speed_violation",
+    "columns": {
+      "MongoDB": [
+        0.00035858154296875
+      ],
+      "MongoDB with index": [
+        0.0004143714904785156
+      ],
+      "PostgreSQL binary json": [
+        0.0085296630859375
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.008597850799560547
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.009337663650512695
+      ]
+    }
+  },
+  "32": {
+    "description": "Count all from person table",
+    "columns": {
+      "MongoDB": [
+        0.0002808570861816406
+      ],
+      "MongoDB with index": [
+        0.0002803802490234375
+      ],
+      "PostgreSQL binary json": [
+        0.05007171630859375
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.12335658073425293
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.12703943252563477
+      ]
+    }
+  },
+  "33": {
+    "description": "Count contacts from all people",
+    "columns": {
+      "MongoDB": [
+        0.057268619537353516
+      ],
+      "MongoDB with index": [
+        0.05803656578063965
+      ],
+      "PostgreSQL binary json": [
+        0.05008697509765625
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.11590838432312012
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.1170961856842041
+      ]
+    }
+  },
+  "34": {
+    "description": "Insert one record into person",
+    "columns": {
+      "MongoDB": [
+        0.00047898292541503906
+      ],
+      "MongoDB with index": [
+        0.0010950565338134766
+      ],
+      "PostgreSQL binary json": [
+        0.0003159046173095703
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.0006487369537353516
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.0005311965942382812
+      ]
+    }
+  },
+  "35": {
+    "description": "Update name of person with id 12 to Meyers Parks Junior",
+    "columns": {
+      "MongoDB": [
+        0.0003707408905029297
+      ],
+      "MongoDB with index": [
+        0.0003864765167236328
+      ],
+      "PostgreSQL binary json": [
+        0.009826421737670898
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.00029778480529785156
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.0002753734588623047
+      ]
+    }
+  },
+  "36": {
+    "description": "Update first contact of person with id 12 to +1 (666) 471-3603 (add when non exist)",
+    "columns": {
+      "MongoDB": [
+        0.00030994415283203125
+      ],
+      "MongoDB with index": [
+        0.00033020973205566406
+      ],
+      "PostgreSQL binary json": [
+        0.00021028518676757812
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.00025272369384765625
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.0002384185791015625
+      ]
+    }
+  },
+  "37": {
+    "description": "Update name of first pet of person with id 12 to Dr. Craig",
+    "columns": {
+      "MongoDB": [
+        0.00035309791564941406
+      ],
+      "MongoDB with index": [
+        0.0003299713134765625
+      ],
+      "PostgreSQL binary json": [
+        0.00023627281188964844
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.00017642974853515625
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.0002033710479736328
+      ]
+    }
+  },
+  "38": {
+    "description": "Increment age by 1 to all pets which are older than 14 years",
+    "columns": {
+      "MongoDB": [
+        0.20647621154785156
+      ],
+      "MongoDB with index": [
+        0.20876526832580566
+      ],
+      "PostgreSQL binary json": [
+        0.9473104476928711
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        3.3895716667175293
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        2.456151247024536
+      ]
+    }
+  },
+  "39": {
+    "description": "Update age of person to 84 when he/she has 85",
+    "columns": {
+      "MongoDB": [
+        0.028836488723754883
+      ],
+      "MongoDB with index": [
+        0.017937183380126953
+      ],
+      "PostgreSQL binary json": [
+        0.13089847564697266
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.17837309837341309
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.1716465950012207
+      ]
+    }
+  },
+  "40": {
+    "description": "Update (add when non exist) first contact to +1 (666) 666-6666 for everyone with age 18",
+    "columns": {
+      "MongoDB": [
+        0.030995607376098633
+      ],
+      "MongoDB with index": [
+        0.007765293121337891
+      ],
+      "PostgreSQL binary json": [
+        0.13701081275939941
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.18140697479248047
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.16345953941345215
+      ]
+    }
+  },
+  "41": {
+    "description": "Update species of pets for all from horse to pony",
+    "columns": {
+      "MongoDB": [
+        0.5425562858581543
+      ],
+      "MongoDB with index": [
+        0.5392138957977295
+      ],
+      "PostgreSQL binary json": [
+        0.9314014911651611
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        4.040784597396851
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        2.910503625869751
+      ]
+    }
+  },
+  "42": {
+    "description": "Delete age from record with id 12",
+    "columns": {
+      "MongoDB": [
+        0.00045299530029296875
+      ],
+      "MongoDB with index": [
+        0.0004818439483642578
+      ],
+      "PostgreSQL binary json": [
+        0.0005624294281005859
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.00036597251892089844
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.00032019615173339844
+      ]
+    }
+  },
+  "43": {
+    "description": "Delete first contact from record with id 12",
+    "columns": {
+      "MongoDB": [
+        0.0003445148468017578
+      ],
+      "MongoDB with index": [
+        0.0003254413604736328
+      ],
+      "PostgreSQL binary json": [
+        0.0002655982971191406
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.0002510547637939453
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.0002701282501220703
+      ]
+    }
+  },
+  "44": {
+    "description": "Delete age of first pet from record with id 12",
+    "columns": {
+      "MongoDB": [
+        0.0003349781036376953
+      ],
+      "MongoDB with index": [
+        0.0003724098205566406
+      ],
+      "PostgreSQL binary json": [
+        0.00019168853759765625
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.00021386146545410156
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.0002598762512207031
+      ]
+    }
+  },
+  "45": {
+    "description": "Delete record with id 12",
+    "columns": {
+      "MongoDB": [
+        0.0003459453582763672
+      ],
+      "MongoDB with index": [
+        0.0004286766052246094
+      ],
+      "PostgreSQL binary json": [
+        0.0001437664031982422
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.0001239776611328125
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.0001163482666015625
+      ]
+    }
+  },
+  "46": {
+    "description": "Delete record where age is 26",
+    "columns": {
+      "MongoDB": [
+        0.0257871150970459
+      ],
+      "MongoDB with index": [
+        0.020137786865234375
+      ],
+      "PostgreSQL binary json": [
+        0.13208317756652832
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.11925268173217773
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.11364603042602539
+      ]
+    }
+  },
+  "47": {
+    "description": "sort : first 10 people with 'oil' defect ordered by city asc",
+    "columns": {
+      "MongoDB": [
+        0.08226442337036133
+      ],
+      "MongoDB with index": [
+        0.0007798671722412109
+      ],
+      "PostgreSQL binary json": [
+        0.17546510696411133
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.5331306457519531
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.5134181976318359
+      ]
+    }
+  },
+  "48": {
+    "description": "sort: names and addresses of first 40 people that are younger than 25 or older than 55 ordered by state (primarily) and city asc",
+    "columns": {
+      "MongoDB": [
+        0.15334343910217285
+      ],
+      "MongoDB with index": [
+        0.1654653549194336
+      ],
+      "PostgreSQL binary json": [
+        0.15288543701171875
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.12847256660461426
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.13025307655334473
+      ]
+    }
+  },
+  "49": {
+    "description": "lookup/join + aggregation: average number of speed violations (records) by people from Utah with age less than 20",
+    "columns": {
+      "MongoDB": [
+        0.6467559337615967
+      ],
+      "MongoDB with index": [
+        0.006470441818237305
+      ],
+      "PostgreSQL binary json": [
+        0.40534400939941406
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.27249622344970703
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.2570459842681885
+      ]
+    }
+  },
+  "50": {
+    "description": "lookup/join + aggregation maximum speed violation (difference between limit and actual speed) by people living in Utah older then 92",
+    "columns": {
+      "MongoDB": [
+        2.127480983734131
+      ],
+      "MongoDB with index": [
+        0.009609699249267578
+      ],
+      "PostgreSQL binary json": [
+        0.3991363048553467
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        0.34064507484436035
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        0.2699778079986572
+      ]
+    }
+  },
+  "51": {
+    "description": "Select contacts from all people",
+    "columns": {
+      "MongoDB": [
+        1.049800157546997
+      ],
+      "MongoDB with index": [
+        1.1933262348175049
+      ],
+      "PostgreSQL binary json": [
+        1.4041707515716553
+      ],
+      "PostgreSQL with index jsonb_ops": [
+        1.3835806846618652
+      ],
+      "PostgreSQL with index jsonb_path_ops": [
+        1.5590548515319824
+      ]
+    }
+  }
+}
