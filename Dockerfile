@@ -1,3 +1,14 @@
+## Before build:
+# docker pull fedora:34
+
+## Build:
+# docker build . -t databases
+
+## Run as:
+# docker run --rm --privileged --mount type=bind,src=.,dst=/opt/pa036 -it databases
+
+################################################################################
+
 FROM fedora:34
 
 # Mongo repository
@@ -25,46 +36,6 @@ su - postgres -c "/usr/bin/pg_ctl stop" && \
 # Intialize a place for MongoDB to store data
 RUN mkdir -p /var/lib/mongo/data
 
-COPY "Data/personData.json" "/opt/pa036/Data/personData.json"
-COPY "Data/speedViolationData.json" "/opt/pa036/Data/speedViolationData.json"
-COPY "Data/DataGenerator.py" "/opt/pa036/Data/DataGenerator.py"
-COPY "Data/SpeedViolationDataGenerator.py" "/opt/pa036/Data/SpeedViolationDataGenerator.py"
-
-COPY "entrypoint.sh" "/opt/pa036/"
-COPY "ExperimentApp.py" "/opt/pa036/"
-COPY "main.py" "/opt/pa036/"
-COPY "MongoDB.py" "/opt/pa036/"
-COPY "Postgres.py" "/opt/pa036/"
-COPY "queries.yaml" "/opt/pa036/"
-
 WORKDIR "/opt/pa036"
 
 CMD ["/opt/pa036/entrypoint.sh"]
-
-################################################################################
-
-## Before build:
-# podman pull fedora:34
-
-## Build:
-# podman build . -t databases
-
-## Run as:
-# podman run -it databases
-
-################################################################################
-# This is no longer needed
-
-# podman run -it --privileged --mount type=bind,source=".",target="/opt/pa036" databases
-
-## To initialize PostgreSQL database
-# su - postgres -c "/usr/bin/pg_ctl -D /var/lib/pgsql/data -l logfile start"
-
-## Postgres shell
-# su - postgres -c "psql"
-
-## To initialize MongoDB database
-# mongod --dbpath /var/lib/mongo/data 2>&1 > /dev/null &
-
-## Mongo shell
-# mongo

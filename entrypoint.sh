@@ -3,9 +3,7 @@
 set -e
 
 su - postgres -c "/usr/bin/pg_ctl -D /var/lib/pgsql/data -l logfile start"
-mongod --dbpath /var/lib/mongo/data 2>&1 > /dev/null &
+mongod --fork --dbpath /var/lib/mongo/data --logpath="/dev/null"
 
 python3 main.py
-
-# Continue with shell
-exec bash
+python3 visualization.py
