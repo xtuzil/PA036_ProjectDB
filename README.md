@@ -1,5 +1,13 @@
 # PA036_ProjectDB
-Repository to PA036 project DB     
+Repository to PA036 project DB  
+
+#### Team mebers: 
+Katarina Hermanova, 
+Marian Koncek, 
+Matej Tuzil, 
+Vojtech Spevak
+
+
 In Fedora 33 please run this project in /tmp/ file to avoid "Permission denied" type of errors (sorry for inconveniences)
 In Windows run this project from Public folder or set the permissions as described in Data preparation section
 
@@ -95,13 +103,3 @@ Windows - set the access permissions of person.json: `Properties -> Security -> 
 ## Running the app
 Just run main() in main.py
 
-
-## DEV notes
-To disable loading the data every time:
-* comment calling the function `load_data()` for both db
-* in MongoDB `__init__()` comment dropping both collection 
-* in Postgres `__init__()` comment loop with executing commands 
-
-## TODO
-* environment pro $lookup
-* wiriting times to csv file
