@@ -86,7 +86,8 @@ $`pip install PyYAML`
 $`pip install jsonlines`
 
 ### matplotlib
-in Fedora 33: $`sudo dnf install python3-matplotlib.x86_64`
+in Fedora 33: $`sudo dnf install python3-matplotlib.x86_64`      
+$`pip install matplotlib`
 
 ## Creating Postgres db
 $`initdb /usr/local/var/postgres`  
