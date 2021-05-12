@@ -1,12 +1,14 @@
 from ExperimentApp import ExperimentApp
-
+import time
 
 def main():
     experiment_app = ExperimentApp()
 
     print("Running the app..")
     # possibly to run repeatedly in loop
-    experiment_app.run()
+    for i in range(5):
+        time.sleep(5)
+        experiment_app.run(rounds_number=3)
 
 
 if __name__ == '__main__':
