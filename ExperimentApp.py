@@ -14,7 +14,7 @@ class ExperimentApp:
         self.postgres = PostgresDB()
         self.mongo = MongoDB()
 
-    def run(self, rounds_number):
+    def run(self):
 
         mongo_indexes = {"person": ["age", "cars.license_plate", "Address.state", "Address.city","pets.species","pets.age"],
         "speed_violation": ["actual_speed", "license_plate"] }
@@ -86,52 +86,52 @@ class ExperimentApp:
                 # dicitonary `columns`
                 default_result(str(query_id), psql_index_text[psql_index] + psql_index, desc).append(postgres_time)
 
-        for i in range(rounds_number):
-            results_json = {}
-            if os.path.isfile("results.json"):
-                with open("results.json", "r") as result_file:
-                    results_json = json.load(result_file)
+        results_json = {}
+        
+        if os.path.isfile("results.json"):
+            with open("results.json", "r") as result_file:
+                results_json = json.load(result_file)
 
-            #Mongo
-            print("\nMongoDB ... loading data to database")
-            load_mongo({})
-            run_mongo({})
-            self.mongo.delete_entries()
-            
-            self.mongo.create_indexes(mongo_indexes)
-            print("\nMongoDB with INDEX ... loading data to database")
-            load_mongo(mongo_indexes)
-            self.mongo.drop_indexes()
-            self.mongo.create_indexes(mongo_indexes)
-            run_mongo(mongo_indexes)
-            self.mongo.delete_entries()
-
-
-            # Postgres
-            print("\nPostgreSQL ... loading data to database")
-            load_postgres("")
-            run_postgres("")
-            self.postgres.delete_entries()
-            
-            self.postgres.create_index("jsonb_ops")
-            print("\nPostgreSQL with jsonb_ops INDEX... loading data to database")
-            load_postgres("jsonb_ops")
-            self.postgres.drop_index("jsonb_ops")
-            self.postgres.create_index("jsonb_ops")
-            run_postgres("jsonb_ops")
-            self.postgres.drop_index("jsonb_ops")
-            self.postgres.delete_entries()
-            
-            self.postgres.create_index("jsonb_path_ops")
-            print("\nPostgreSQL with jsonb_path_ops INDEX... loading data to database")
-            load_postgres("jsonb_path_ops")
-            self.postgres.drop_index("jsonb_path_ops")
-            self.postgres.create_index("jsonb_path_ops")
-            run_postgres("jsonb_path_ops")
-            self.postgres.drop_index("jsonb_path_ops")
-            self.postgres.delete_entries()
+        #Mongo
+        print("\nMongoDB ... loading data to database")
+        load_mongo({})
+        run_mongo({})
+        self.mongo.delete_entries()
+        
+        self.mongo.create_indexes(mongo_indexes)
+        print("\nMongoDB with INDEX ... loading data to database")
+        load_mongo(mongo_indexes)
+        self.mongo.drop_indexes()
+        self.mongo.create_indexes(mongo_indexes)
+        run_mongo(mongo_indexes)
+        self.mongo.delete_entries()
 
 
-            with open("results.json", "w") as result_file:
-                json.dump(results_json, result_file, indent = 2)
+        # Postgres
+        print("\nPostgreSQL ... loading data to database")
+        load_postgres("")
+        run_postgres("")
+        self.postgres.delete_entries()
+        
+        self.postgres.create_index("jsonb_ops")
+        print("\nPostgreSQL with jsonb_ops INDEX... loading data to database")
+        load_postgres("jsonb_ops")
+        self.postgres.drop_index("jsonb_ops")
+        self.postgres.create_index("jsonb_ops")
+        run_postgres("jsonb_ops")
+        self.postgres.drop_index("jsonb_ops")
+        self.postgres.delete_entries()
+        
+        self.postgres.create_index("jsonb_path_ops")
+        print("\nPostgreSQL with jsonb_path_ops INDEX... loading data to database")
+        load_postgres("jsonb_path_ops")
+        self.postgres.drop_index("jsonb_path_ops")
+        self.postgres.create_index("jsonb_path_ops")
+        run_postgres("jsonb_path_ops")
+        self.postgres.drop_index("jsonb_path_ops")
+        self.postgres.delete_entries()
+
+
+        with open("results.json", "w") as result_file:
+            json.dump(results_json, result_file, indent = 2)
 
