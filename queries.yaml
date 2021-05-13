@@ -68,7 +68,7 @@
 
 #S6- Viac zanoreny select v poli cars cez pole tech_exams k polu defects (BEFORE #7)
   - id: 6
-    description: "Select all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)"
+    description: "Select all defects from all tech exams"
     fetch: true
     postgres: select jsonb_array_elements(jsonb_array_elements(jsonb_array_elements(data -> 'cars') -> 'tech_exams') -> 'defects') from person;
     mongo:
@@ -114,7 +114,7 @@
 
 #SwC4- select s jednoduchou podmienkou na toplevel array atribute s pouzitim existence funkcie (BEFORE #5)
   - id: 10
-    description: "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)"
+    description: "Select people with contact '+1 (966) 429-3818'"
     fetch: true
     postgres: select * from person where (data->'contacts')::jsonb ? '+1 (966) 429-3818';
     mongo:
@@ -124,7 +124,7 @@
 
 #SwC5- select so zanorenou podmienkou 1. sposob (BEFORE #29)
   - id: 11
-    description: "Select person who owns car with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
+    description: "Select person who owns car with\nlicence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
     fetch: true
     postgres: 'select * from person where ((data -> ''cars'') @> ''[{"license_plate": "1d642205-dc4e-4051-b653-bc0f6b768072"}]'')::boolean = true;'
     mongo:
@@ -134,7 +134,7 @@
 
 #SwC6 - select so zanorenou podmienkou 2. sposob (BEFORE #31)
   - id: 12
-    description: "Select all records in person with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
+    description: "Select all records in person with\nlicence plate 1d642205-dc4e-4051-b653-bc0f6b768072"
     fetch: true
     postgres: select * from person where data @@ '$.cars[*].license_plate == "1d642205-dc4e-4051-b653-bc0f6b768072"';
     # mongo: STEJNE JAKO 29
@@ -151,7 +151,7 @@
 
 #SwC8 array query 1 (BEFORE #50)
   - id: 14
-    description: "array query: people from Nevada who own at least one elephant older then 10 "
+    description: "array query: people from Nevada\nwho own at least one elephant older than 10 "
     fetch: true
     postgres: select * from person where data @@ '$.Address.state == "Nevada"' and data @? '$.pets[*] ? (@.age > 10 && @.species == "elephant")';
     mongo:
@@ -175,7 +175,7 @@
 
 #J1- Zlozity select z person s joinom na speed_violation (BEFORE #8)
   - id: 16
-    description: "Select name, age, license plate, date of violation, speed limit and actual speed with actual speed higher than 199 and speed limit equal to 30"
+    description: "Select name, age, license plate,\ndate of violation, speed limit and actual speed with actual speed\nhigher than 199 and speed limit equal to 30"
     fetch: true
     postgres: 'select t.name, t.age, t.license_plate, (speed_violation.data->>''date'') as date, (speed_violation.data->>''speed_limit'') as speed_limit, (speed_violation.data->>''actual_speed'') as actual_speed from (select person.data ->> ''name'' as name, person.data ->> ''age'' as age, jsonb_array_elements(person.data -> ''cars'') -> ''license_plate'' as license_plate from person) as t inner join speed_violation on license_plate = speed_violation.data -> ''license_plate'' where (speed_violation.data -> ''actual_speed'')::int > 199 and (speed_violation.data -> ''speed_limit'')::int = 30;'
     mongo:
@@ -239,7 +239,7 @@
 
 #A6- jednodychy select s agregaciou array_agg (BEFORE #23)
   - id: 22
-    description: "Put names of all people concatenated into an array with ARRAY_AGG"
+    description: "Put names of all people concatenated into a json array"
     fetch: true
     postgres: 'SELECT json_agg(data->''name'') from person;'
     mongo:
@@ -274,7 +274,7 @@
 
 #SwCaA2- podmieneny select s agregaciou array_agg (BEFORE #13)
   - id: 25
-    description: "Put names of all people with age 18 concatenated into an array with ARRAY_AGG"
+    description: "Put names of all people\nwith age 18 concatenated into a json array"
     fetch: true
     postgres: 'SELECT ARRAY_AGG(data->''name'') from person where (data->''age'')::int = 18;'
     mongo:
@@ -299,7 +299,7 @@
 
 #CoQ2- count na query #4 (BEFORE #16)
   - id: 27
-    description: "Select count of people with contact like '539-206' (top level atribut contacts)"
+    description: "Select count of people with contact like '539-206'"
     fetch: true
     postgres: 'select count(*) from person where (data->>''contacts'') like ''%539-206%'';'
     mongo:
@@ -309,7 +309,7 @@
 
 #CoQ3- count na query #5 (BEFORE #17)
   - id: 28
-    description: "Select count of people with contact '+1 (966) 429-3818' (top level atribut contacts)"
+    description: "Select count of people with contact '+1 (966) 429-3818'"
     fetch: true
     postgres: 'select count(*) from person where (data->''contacts'')::jsonb ? ''+1 (966) 429-3818'';'
     mongo:
@@ -329,7 +329,7 @@
 
 #CoQ5- count na query #7 (BEFORE #19)
   - id: 30
-    description: "Select count of all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)"
+    description: "Select count of all defects from all tech exams"
     fetch: true
     postgres: 'select count(*) from (select jsonb_array_elements(jsonb_array_elements(jsonb_array_elements(data -> ''cars'') -> ''tech_exams'') -> ''defects'') from person) as t;'
     mongo:
@@ -402,7 +402,7 @@
 
 #U2- update v array (BEFORE #35)
   - id: 36
-    description: "Update first contact of person with id 12 to +1 (666) 471-3603 (add when non exist)"
+    description: "Update first contact of person\nwith id 12 to +1 (666) 471-3603 (add when non exist)"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{contacts, 0}', '"+1 (666) 471-3603"', true) WHERE id = 12;
     mongo:
@@ -447,7 +447,7 @@
 
 #U6- update v array multiple records (BEFORE #39)
   - id: 40
-    description: "Update (add when non exist) first contact to +1 (666) 666-6666 for everyone with age 18"
+    description: "Update (add when non exist) first contact\nto +1 (666) 666-6666 for everyone with age 18"
     fetch: false
     postgres: UPDATE person SET data = jsonb_set(data, '{contacts, 0}', '"+1 (666) 666-6666"', true) WHERE (data -> 'age')::int = 18;
     mongo:
@@ -535,7 +535,7 @@
 
 # SaL1 - sort and limit (BEFORE #46)
   - id: 47
-    description: "sort : first 10 people with 'oil' defect ordered by city asc"
+    description: "sort (ascending): first 10 people with 'oil' defect ordered by city"
     fetch: true
     postgres: select (data->>'name'),(data->>'Address') from person where data @@ '$.cars[*].tech_exams[*].defects[*] == "oil"' order by (data -> 'Address') ->> 'city' ASC limit 10;
     mongo:
@@ -545,7 +545,7 @@
 
 #SaL2 sort and limit 2 (BEFORE #47)
   - id: 48
-    description: "sort: names and addresses of first 40 people that are younger than 25 or older than 55 ordered by state (primarily) and city asc"
+    description: "sort (ascending): names and addresses\nof first 40 people that are younger than 25 or older\nthan 55 ordered by state (primarily) and city"
     fetch: true
     postgres: select (data->>'name'),(data->>'Address') from person where (data->'age')::int<25 OR (data->'age')::int>55 order by (data -> 'Address') ->> 'state',(data -> 'Address') ->> 'city' ASC limit 40;
     mongo:
@@ -560,7 +560,7 @@
 
 #JaA1 lookup/join + aggregation 1 (BEFORE #48)
   - id: 49
-    description: "lookup/join + aggregation: average number of speed violations (records) by people from Utah with age less than 20"
+    description: "lookup/join + aggregation: average number\nof speed violations (records) by people\nfrom Utah with age less than 20"
     fetch: false
     postgres: select AVG(count) from (select t.name, count(speed_violation.id) from (select (data->>'name') as name, jsonb_array_elements(data -> 'cars')-> 'license_plate' as license_plate from person where (data->'age')::int<20 and data @@ '$.Address.state == "Utah"') as t inner join speed_violation on t.license_plate = speed_violation.data -> 'license_plate' group by t.name) as k;
     mongo:
@@ -570,7 +570,7 @@
 
 #JaA2 lookup/join + aggregation 2 (BEFORE #49)
   - id: 50
-    description: "lookup/join + aggregation maximum speed violation (difference between limit and actual speed) by people living in Utah older then 92"
+    description: "lookup/join + aggregation maximum speed violation\n(difference between limit and actual speed)\nby people living in Utah older than 92"
     fetch: false
     postgres: select max((k.data -> 'actual_speed')::int - (k.data -> 'speed_limit')::int) from ((select jsonb_array_elements(data -> 'cars')-> 'license_plate' as license_plate from person where (data->'age')::int>92 and data @@ '$.Address.state == "Utah"') as t inner join speed_violation on t.license_plate = speed_violation.data -> 'license_plate') as k;
     mongo:

@@ -32,10 +32,14 @@ class ExperimentApp:
             # optional description argument
             desc = "" if len(args) == 0 else args[0]
             
-            return results_json.setdefault(name, {
+            result = results_json.setdefault(name, {
                 "description": desc,
                 "columns": {},
-            })["columns"].setdefault(inner_name, [])
+            })
+            
+            result["description"] = desc
+            
+            return result["columns"].setdefault(inner_name, [])
         
         def load_mongo(mongo_indexes):
             time_person_m, time_speed_violation_m = self.mongo.load_data()
