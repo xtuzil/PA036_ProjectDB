@@ -30,7 +30,7 @@ class ExperimentApp:
 
         def default_result(name, inner_name, *args):
             # optional description argument
-            desc = name if len(args) == 0 else args[0]
+            desc = "" if len(args) == 0 else args[0]
             
             return results_json.setdefault(name, {
                 "description": desc,

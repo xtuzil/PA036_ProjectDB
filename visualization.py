@@ -62,18 +62,22 @@ def make_bar(ax, labels, data):
             color = colors[label],
         )
 
+def title_of(result):
+    description = result[1]["description"]
+    return result[0] + (": " + description if description else "")
+
 def savefigs(output_name, results):
     width, fig, axes = preprocess(results)
     
-    for result, index in zip(results.values(), range(len(results))):
+    for result, index in zip(results.items(), range(len(results))):
         ax = axes[index // width][index % width]
         
-        labels = list(result["columns"].keys())
-        data = [column for column in result["columns"].values()]
+        labels = list(result[1]["columns"].keys())
+        data = [column for column in result[1]["columns"].values()]
         
         make_bar(ax, labels, data)
         
-        ax.set_title(result["description"])
+        ax.set_title(title_of(result))
         
         ax.set_ylim(0)
         
@@ -85,15 +89,15 @@ def savefigs(output_name, results):
     plt.savefig(output_name)
 
 def savefigs_each(output_prefix, results):
-    for (result_name, result), index in zip(results.items(), range(len(results))):
+    for result, index in zip(results.items(), range(len(results))):
         fig, ax = plt.subplots(figsize = (8, 8))
         
-        labels = list(result["columns"].keys())
-        data = [column for column in result["columns"].values()]
+        labels = list(result[1]["columns"].keys())
+        data = [column for column in result[1]["columns"].values()]
         
         make_bar(ax, labels, data)
         
-        ax.set_title(result["description"])
+        ax.set_title(title_of(result))
         
         ax.set_ylim(0)
         
@@ -102,7 +106,7 @@ def savefigs_each(output_prefix, results):
         ax.set_xlabel("Database type")
         ax.set_ylabel("Time [ms]")
         
-        plt.savefig(output_prefix + result_name + ".png")
+        plt.savefig(output_prefix + result[0] + ".png")
         plt.close(fig)
 
 def savefigs_grouped(output_name, results):
