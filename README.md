@@ -144,12 +144,11 @@ Of course for that you would need `docker` or `podman`.
 
 .  <br />
 |_ __Data__  <br />
-|______ __.DS_Store__     <br />
 |______ __DataGenerator.py__    <br />
 |______ __SpeedViolationDataGenerator.py__ _(responsible for creating SpeedViolationData)_<br />
 |______ __json-generator_schema.txt__    <br />
 |______ __personData.json.gz__ _(personData to unzip)_   <br />
-|_ __results__ _(contains directories with results from different machines)_   <br />
+|_ __results__ _(contains directories with results.json and graphs from different machines)_   <br />
 |______ __mkoncek__ _(Fedora 34 inside container on Fedora 33 Lenovo ThinkPad T480s)_   <br />
 |______ __mtuzil__ _(macOS Big Sur Version 11.2.3 on MacBook Pro 2017)_   <br />
 |______ __khermano__ _(Fedora 33 running on Lenovo ThinkPad T590)_    <br />
