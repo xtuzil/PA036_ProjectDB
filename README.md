@@ -163,4 +163,5 @@ Of course for that you would need `docker` or `podman`.
 |_ __entrypoint.sh__ <br />
 |_ __main.py__ <br />
 |_ __queries.yaml__ _(MongoDB and Postgres experiments)_ <br />
+|_ __realGantt.jpg__ _(new Gantt with real times)_ <br />
 |_ __visualization.py__ _(for creating graphs of results)_ <br />
