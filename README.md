@@ -1,7 +1,8 @@
 # PA036_ProjectDB
-Repository to PA036 project DB
+Repository to PA036 project DB  
+https://github.com/xtuzil/PA036_ProjectDB
 
-#### Team mebers:
+#### Team members:
 Katarina Hermanova,
 Marian Koncek,
 Matej Tuzil,
@@ -76,8 +77,8 @@ Install mongo:
     mongod -version
 
 #### Windows
-Follow the steps desribed in https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/
-including setting up the mongodb as a windows service.
+Follow the steps described in https://docs.mongodb.com/manual/tutorial/install-mongodb-on-windows/
+including setting up the MongoDB as a Windows service.
 
 ### Psycopg2
 
@@ -131,9 +132,36 @@ After having set up the database daemons (see how it is done in `entrypoint.sh` 
 The program writes results to a file `results.json`. If such file already exists, the results are appended.
 
 Graphs can be created after having the results by running `python3 visualization.py`.
-It created a larger number of pictures + 2 aggregte pictures (`queries.png` and `queries-grouped.png`)
+It created a larger number of pictures + 2 aggregate pictures (`queries.png` and `queries-grouped.png`)
 
 There is a `Dockerfile` which can be used to execute the whole process with just 3 commands.
 It is described in the file.
 
 Of course for that you would need `docker` or `podman`.
+
+
+## Application hierarchy
+
+.  <br />
+|_ __Data__  <br />
+|______ __.DS_Store__     <br />
+|______ __DataGenerator.py__    <br />
+|______ __SpeedViolationDataGenerator.py__ _(responsible for creating SpeedViolationData)_<br />
+|______ __json-generator_schema.txt__    <br />
+|______ __personData.json.gz__ _(personData to unzip)_   <br />
+|_ __results__ _(contains directories with results from different machines)_   <br />
+|______ __mkoncek__ _(Fedora 34 inside container on Fedora 33 Lenovo ThinkPad T480s)_   <br />
+|______ __mtuzil__ _(macOS Big Sur Version 11.2.3 on MacBook Pro 2017)_   <br />
+|______ __khermano__ _(Fedora 33 running on Lenovo ThinkPad T590)_    <br />
+|______ __vspevak__ _(Windows 10 Home running on Acer Swift SF314-52G)_     <br />
+|_ __.gitignore__ <br />
+|_ __Dockerfile__ <br />
+|_ __ExperimentApp.py__ _(runs experiment from both DBs)_ <br />
+|_ __LICENSE__ <br />
+|_ __MongoDB.py__ _(takes care about MongoDB e.g. data loading, indexes...)_ <br />
+|_ __Postgres.py__ _(takes care about PostgreSQL DB e.g. data loading, indexes...)_ <br />
+|_ __README.md__ <br />
+|_ __entrypoint.sh__ <br />
+|_ __main.py__ <br />
+|_ __queries.yaml__ _(MongoDB and Postgres experiments)_ <br />
+|_ __visualization.py__ _(for creating graphs of results)_ <br />
