@@ -1435,7 +1435,7 @@
     }
   },
   "6": {
-    "description": "Select all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)",
+    "description": "Select all defects from all tech exams",
     "columns": {
       "MongoDB": [
         4.858126163482666,
@@ -2255,7 +2255,7 @@
     }
   },
   "10": {
-    "description": "Select people with contact '+1 (966) 429-3818' (top level atribut contacts)",
+    "description": "Select people with contact '+1 (966) 429-3818'",
     "columns": {
       "MongoDB": [
         0.06306672096252441,
@@ -2460,7 +2460,7 @@
     }
   },
   "11": {
-    "description": "Select person who owns car with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072",
+    "description": "Select person who owns car with\nlicence plate 1d642205-dc4e-4051-b653-bc0f6b768072",
     "columns": {
       "MongoDB": [
         0.10592794418334961,
@@ -2665,7 +2665,7 @@
     }
   },
   "12": {
-    "description": "Select all records in person with licence plate 1d642205-dc4e-4051-b653-bc0f6b768072",
+    "description": "Select all records in person with\nlicence plate 1d642205-dc4e-4051-b653-bc0f6b768072",
     "columns": {
       "MongoDB": [
         0,
@@ -3075,7 +3075,7 @@
     }
   },
   "14": {
-    "description": "array query: people from Nevada who own at least one elephant older then 10 ",
+    "description": "array query: people from Nevada\nwho own at least one elephant older than 10 ",
     "columns": {
       "MongoDB": [
         0.07328104972839355,
@@ -3485,7 +3485,7 @@
     }
   },
   "16": {
-    "description": "Select name, age, license plate, date of violation, speed limit and actual speed with actual speed higher than 199 and speed limit equal to 30",
+    "description": "Select name, age, license plate,\ndate of violation, speed limit and actual speed with actual speed\nhigher than 199 and speed limit equal to 30",
     "columns": {
       "MongoDB": [
         7.140186071395874,
@@ -4715,7 +4715,7 @@
     }
   },
   "22": {
-    "description": "Put names of all people concatenated into an array with ARRAY_AGG",
+    "description": "Put names of all people concatenated into a json array",
     "columns": {
       "MongoDB": [
         0.08900880813598633,
@@ -5330,7 +5330,7 @@
     }
   },
   "25": {
-    "description": "Put names of all people with age 18 concatenated into an array with ARRAY_AGG",
+    "description": "Put names of all people\nwith age 18 concatenated into a json array",
     "columns": {
       "MongoDB": [
         0.028748750686645508,
@@ -5740,7 +5740,7 @@
     }
   },
   "27": {
-    "description": "Select count of people with contact like '539-206' (top level atribut contacts)",
+    "description": "Select count of people with contact like '539-206'",
     "columns": {
       "MongoDB": [
         0.09902405738830566,
@@ -5945,7 +5945,7 @@
     }
   },
   "28": {
-    "description": "Select count of people with contact '+1 (966) 429-3818' (top level atribut contacts)",
+    "description": "Select count of people with contact '+1 (966) 429-3818'",
     "columns": {
       "MongoDB": [
         0.07339119911193848,
@@ -6355,7 +6355,7 @@
     }
   },
   "30": {
-    "description": "Select count of all defects from all tech exams (vsetky defekty na vsetkych technickych prehliadkach vsetkych aut - pocitaj s velkou duplicitou)",
+    "description": "Select count of all defects from all tech exams",
     "columns": {
       "MongoDB": [
         1.296410083770752,
@@ -7585,7 +7585,7 @@
     }
   },
   "36": {
-    "description": "Update first contact of person with id 12 to +1 (666) 471-3603 (add when non exist)",
+    "description": "Update first contact of person\nwith id 12 to +1 (666) 471-3603 (add when non exist)",
     "columns": {
       "MongoDB": [
         0.0010380744934082031,
@@ -8405,7 +8405,7 @@
     }
   },
   "40": {
-    "description": "Update (add when non exist) first contact to +1 (666) 666-6666 for everyone with age 18",
+    "description": "Update (add when non exist) first contact\nto +1 (666) 666-6666 for everyone with age 18",
     "columns": {
       "MongoDB": [
         0.04011797904968262,
@@ -9840,7 +9840,7 @@
     }
   },
   "47": {
-    "description": "sort : first 10 people with 'oil' defect ordered by city asc",
+    "description": "sort (ascending): first 10 people with 'oil' defect ordered by city",
     "columns": {
       "MongoDB": [
         0.19753098487854004,
@@ -10045,7 +10045,7 @@
     }
   },
   "48": {
-    "description": "sort: names and addresses of first 40 people that are younger than 25 or older than 55 ordered by state (primarily) and city asc",
+    "description": "sort (ascending): names and addresses\nof first 40 people that are younger than 25 or older\nthan 55 ordered by state (primarily) and city",
     "columns": {
       "MongoDB": [
         0.07962703704833984,
@@ -10250,7 +10250,7 @@
     }
   },
   "49": {
-    "description": "lookup/join + aggregation: average number of speed violations (records) by people from Utah with age less than 20",
+    "description": "lookup/join + aggregation: average number\nof speed violations (records) by people\nfrom Utah with age less than 20",
     "columns": {
       "MongoDB": [
         1.0385959148406982,
@@ -10455,7 +10455,7 @@
     }
   },
   "50": {
-    "description": "lookup/join + aggregation maximum speed violation (difference between limit and actual speed) by people living in Utah older then 92",
+    "description": "lookup/join + aggregation maximum speed violation\n(difference between limit and actual speed)\nby people living in Utah older than 92",
     "columns": {
       "MongoDB": [
         3.441706895828247,

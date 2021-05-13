@@ -128,7 +128,12 @@ You must provide file personData.json in Data directory. If the file is zipped, 
 Windows - set the access permissions of person.json: `Properties -> Security -> Edit -> Add -> "yourcomputername\Users"`
 
 ## Running the application
-After having set up the database daemons (see how it is done in `entrypoint.sh` execute `python3 main.py`.
+First you have to start both database daemons:  
+
+    su - postgres -c "/usr/bin/pg_ctl -D /var/lib/pgsql/data -l logfile start"
+    mongod --fork --dbpath /var/lib/mongo/data --logpath="/dev/null"
+
+After having set up the database daemons execute `python3 main.py`.
 The program writes results to a file `results.json`. If such file already exists, the results are appended.
 
 Graphs can be created after having the results by running `python3 visualization.py`.
