@@ -1,17 +1,7 @@
-import re
-
 from pymongo import MongoClient
 from time import time
 import json
 from Data.DataGenerator import DataGenerator
-
-"""
-get_result = {
-    "count": lambda x: int(x),
-    "find": lambda x: list(x),
-    "aggregate": lambda x: list(x),
-    "distinct": lambda x: list(x)
-}"""
 
 
 def get_result(method):
@@ -77,13 +67,6 @@ class MongoDB:
         collection = yaml_query["mongo"]["collection"]
         method = yaml_query["mongo"]["method"]
 
-        """
-        for entry in "filter", "value", "distinct", "projection":
-            mongo_query = yaml_query["mongo"]
-            if entry in mongo_query:
-                args.append({"distinct": lambda x: mongo_query[x]}
-                            .get(entry, lambda x: json.loads(mongo_query[x]))(entry))
-        """
 
         if "filter" in yaml_query["mongo"]:
             filters = self.replace_possible_id(json.loads(yaml_query["mongo"]["filter"]))
@@ -105,10 +88,8 @@ class MongoDB:
         else:
             # takes collection, method and possibly filters or value and execute it
             start = time()
-            result = get_result(method)(getattr(self.get_col(collection), method)(*args))
+            get_result(method)(getattr(self.get_col(collection), method)(*args))
             end = time()
-
-        # print("Mongo result:", result.matched_count)
 
         return end - start
 

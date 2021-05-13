@@ -47,9 +47,6 @@ class ExperimentApp:
 
             default_result("Data loading person",f"MongoDB{' with index' if any(mongo_indexes) else ''}").append(time_person_m)
             default_result("Data loading speed_violation", f"MongoDB{' with index' if any(mongo_indexes) else ''}").append(time_speed_violation_m)
-            
-            # default_result("Data loading person", f"MongoDB with indexes: { mongo_indexes['person'] }" if "person" in mongo_indexes else "MongoDB").append(time_person_m)
-            # default_result("Data loading speed_violation", f"MongoDB with indexes: {mongo_indexes['speed_violation']}" if "speed_violation" in mongo_indexes else "MongoDB" ).append(time_speed_violation_m)
 
         def run_mongo(mongo_indexes):  
             for query in queries["queries"]:
@@ -92,7 +89,7 @@ class ExperimentApp:
             with open("results.json", "r") as result_file:
                 results_json = json.load(result_file)
 
-        #Mongo
+        # Mongo
         print("\nMongoDB ... loading data to database")
         load_mongo({})
         run_mongo({})

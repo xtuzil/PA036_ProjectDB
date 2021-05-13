@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 
 import matplotlib.pyplot as plt
 import numpy
@@ -142,11 +143,15 @@ def savefigs_grouped(output_name, results):
 with open("results.json", "r") as results_file:
     results = json.load(results_file)
 
-savefigs_each("query-", results)
+if not os.path.exists("visualization_output/"):
+    os.mkdir("visualization_output/")
 
-savefigs("queries.png", results)
 
-savefigs_grouped("queries-grouped.png", [
+savefigs_each("visualization_output/query-", results)
+
+savefigs("visualization_output/queries.png", results)
+
+savefigs_grouped("visualization_output/queries-grouped.png", [
     normalize("selecty", [
         "1", "2", "3", "4", "5", "6",
     ]),
